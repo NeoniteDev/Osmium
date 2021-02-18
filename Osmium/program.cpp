@@ -7,7 +7,7 @@ namespace osmium
 	{
 		Util::InitConsole();
 
-		printf("[Osmium] Init!\n");
+		printf("LogOsmium: Init!\n");
 
 		m_pCurl = new Curl;
 	}
