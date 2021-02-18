@@ -1,5 +1,6 @@
-#include "program.h"
 #include <windows.h>
+
+#include "program.h"
 
 static osmium::Program* spProgram;
 

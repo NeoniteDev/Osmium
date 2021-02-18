@@ -1,5 +1,5 @@
-#include "program.h"
 #include "util.h"
+#include "program.h"
 
 namespace osmium
 {
