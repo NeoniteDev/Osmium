@@ -1,10 +1,7 @@
-#include <regex>
-#include <string>
-#include <windows.h>
-
 #include "curl.h"
 #include "util.h"
 #include "constants.h"
+#include "framework.h"
 
 namespace osmium 
 {

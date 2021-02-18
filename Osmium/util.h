@@ -1,10 +1,5 @@
 #pragma once
-
-#include <cstdio>
-#include <psapi.h>
-#include <windows.h>
-#include <winscard.h>
-#include <xstring>
+#include "framework.h"
 
 namespace osmium
 {

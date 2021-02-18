@@ -6,6 +6,8 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <regex>
+#include <winscard.h>
 
 #include <dxgi.h>
 #include <d3d11.h>
