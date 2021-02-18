@@ -114,12 +114,9 @@ xcopy "$(TargetPath)" "$(SolutionDir)Build\" /F /I /R /Y</Command>
   <ItemGroup>
     <ClInclude Include="curl.h" />
     <ClInclude Include="constants.h" />
-    <ClInclude Include="enums.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="hook.h" />
     <ClInclude Include="program.h" />
-    <ClInclude Include="structs.h" />
-    <ClInclude Include="ue4.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

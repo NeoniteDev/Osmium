@@ -37,19 +37,10 @@
     <ClInclude Include="hook.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ue4.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="structs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="framework.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="enums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
