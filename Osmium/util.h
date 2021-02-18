@@ -1,15 +1,17 @@
 #pragma once
 
-#include <windows.h>
-#include <psapi.h>
 #include <cstdio>
+#include <psapi.h>
+#include <windows.h>
+#include <winscard.h>
+#include <xstring>
 
 namespace osmium
 {
 	class Util 
 	{
 	private:
-		static BOOL MaskCompare(PVOID pBuffer, LPCSTR lpPattern, LPCSTR lpMask) 
+		static __forceinline BOOL MaskCompare(PVOID pBuffer, LPCSTR lpPattern, LPCSTR lpMask)
 		{
 			for (auto val = static_cast<PBYTE>(pBuffer); *lpMask; ++lpPattern, ++lpMask, ++val) 
 				if (*lpMask == 'x' && *reinterpret_cast<LPCBYTE>(lpPattern) != *val) 
@@ -18,7 +20,7 @@ namespace osmium
 			return true;
 		}
 
-		static PBYTE FindPattern(PVOID pBase, DWORD dwSize, LPCSTR lpPattern, LPCSTR lpMask) 
+		static __forceinline PBYTE FindPattern(PVOID pBase, DWORD dwSize, LPCSTR lpPattern, LPCSTR lpMask)
 		{
 			dwSize -= static_cast<DWORD>(strlen(lpMask));
 
@@ -33,7 +35,7 @@ namespace osmium
 		}
 
 	public:
-		static VOID InitConsole() 
+		static __forceinline VOID InitConsole()
 		{
 			AllocConsole();
 
@@ -42,12 +44,12 @@ namespace osmium
 			freopen_s(&pFile, "CONOUT$", "w", stdout);
 		}
 
-		static uintptr_t BaseAddress() 
+		static __forceinline uintptr_t BaseAddress()
 		{
 			return reinterpret_cast<uintptr_t>(GetModuleHandle(0));
 		}
 
-		static PBYTE FindPattern(LPCSTR lpPattern, LPCSTR lpMask) 
+		static __forceinline PBYTE FindPattern(LPCSTR lpPattern, LPCSTR lpMask)
 		{
 			// Grab module info, used for obtaining info like lpBaseOfDll and SizeOfImage.
 			MODULEINFO info{};
@@ -65,6 +67,18 @@ namespace osmium
 
 			// After the spin-out has been completed, return the address!
 			return pAddr;
+		}
+		
+		static __forceinline std::wstring sString(std::wstring s, std::wstring delimiter)
+		{
+			size_t pos;
+			std::wstring token;
+			while ((pos = s.find(delimiter)) != std::string::npos)
+			{
+				token = s.substr(0, pos);
+				return token;
+			}
+			return token;
 		}
 	};
 }
