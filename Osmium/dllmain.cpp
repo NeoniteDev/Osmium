@@ -26,15 +26,16 @@ void WINAPI dllMain()
 			isReady = !isReady;
 		}
 		
-		//When we are in lobby and everything is initalized, we are ready to go in-game at any time.
-		//NOTE (kemo): we will move this to a pe hook or url listening inside the world itself.
+		// When we are in lobby and everything is initalized, we are ready to go in-game at any time.
+		// NOTE (kemo): This will be moved to a ProcessEvent hook at some point.
 		if (isReady && isInLobby && GetAsyncKeyState(VK_F5))
 		{
 			osWorld = new World();
 			break;
 		}
 
-		Sleep(1000 / 30); //30 fps 
+		// Run the thread at 30 frames a second.
+		Sleep(1000 / 30);
 	}
 }
 

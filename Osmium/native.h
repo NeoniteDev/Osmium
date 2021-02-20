@@ -17,17 +17,17 @@ inline UObject* (*StaticConstructObject)(
 	bool bAssumeTemplateIsArchetype
 );
 
-
 namespace Native
 {
-	inline void CheatManager()
+	/// <summary>
+	/// Initializes CheatManager for the player.
+	/// </summary>
+	inline void InitCheatManager()
 	{
-		/*
-		 * Gets the local player controller from the local players array in the gameinstance
-		 * Then Constructs a cheatmanager then assigns it to the player
-		 */
+		// Get the PlayerController from the GameInstances' LocalPlayers array.
 		auto PlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
 		
+		// Construct a CheatManager.
 		UObject* CheatManager = StaticConstructObject(
 			UCheatManager::StaticClass(),
 			PlayerController,
@@ -40,13 +40,16 @@ namespace Native
 			false
 		);
 
+		// Assign the CheatManager to the PlayerController.
 		PlayerController->CheatManager = static_cast<UCheatManager*>(CheatManager);
 	}
 
-	//Unlocks console with cheat manager
+	/// <summary>
+	/// Unlocks the console and initializes CheatManager for the player.
+	/// </summary>
 	inline void UnlockConsole()
 	{
-		//we construct a console then we assign it to the viewport console
+		// Construct a Console.
 		UObject* Console = StaticConstructObject(
 			GEngine->ConsoleClass,
 			GEngine->GameViewport,
@@ -59,18 +62,22 @@ namespace Native
 			false
 		);
 
+		// Assign the constructed console to the GameViewports' ViewportConsole.
 		GEngine->GameViewport->ViewportConsole = static_cast<UConsole*>(Console);
 
-		CheatManager();
+		// Initialize CheatManager for the player.
+		InitCheatManager();
 	}
 
+	/// <summary>
+	/// Initializes Osmium.
+	/// </summary>
 	inline void Init()
-	{
+	{		
 		GEngine = *reinterpret_cast<UEngine**>(reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr)) + 0x4FC15D8);
+		GWorld = *reinterpret_cast<UWorld**>(reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr)) + 0x4FC3160);
 
 		StaticConstructObject = decltype(StaticConstructObject)(reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr)) + 0x15B5410);
-
-		GWorld = *reinterpret_cast<UWorld**>(reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr)) + 0x4FC3160);
 
 		UnlockConsole();
 	}

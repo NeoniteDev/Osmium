@@ -1,6 +1,6 @@
 #pragma once
 
-enum EOsmiumWorldStatus
+enum EWorldStatus
 {
 	None,
 	Constructing,
