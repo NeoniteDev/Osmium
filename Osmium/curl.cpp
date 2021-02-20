@@ -1,4 +1,4 @@
-#include "curl.h"
+#include "cURL.h"
 #include "util.h"
 #include "constants.h"
 #include "framework.h"
@@ -7,23 +7,23 @@ namespace osmium
 {
 	const std::regex rEpicGames("https:\\/\\/(.*)\\.ol\\.epicgames.com");
 
-	INT (*CurlSetopt)(LPVOID, INT, va_list) = NULL;
-	INT CurlSetoptVa(LPVOID lpContext, INT iOption, ...) 
+	INT (*cURLSetopt)(LPVOID, INT, va_list) = NULL;
+	INT cURLSetoptVa(LPVOID lpContext, INT iOption, ...) 
 	{
 		va_list list{};
 		va_start(list, iOption);
 
-		INT iResult = CurlSetopt(lpContext, iOption, list);
+		INT iResult = cURLSetopt(lpContext, iOption, list);
 
 		va_end(list);
 
 		return iResult;
 	}
 
-	INT CurlEasySetopt(LPVOID lpContext, INT iTag, ...) 
+	INT cURLEasySetopt(LPVOID lpContext, INT iTag, ...) 
 	{
 		if (!lpContext)
-			return 43; // CURLE_BAD_FUNCTION_ARGUMENT
+			return 43; // cURLE_BAD_FUNCTION_ARGUMENT
 
 		va_list list{}, copy{}; // Copy only exists for our tag overrides.
 		va_start(list, iTag);
@@ -32,24 +32,26 @@ namespace osmium
 		INT iResult = 0;
 		switch (iTag) 
 		{
-			case 64: // CURLOPT_SSL_VERIFYPEER
-				iResult = CurlSetoptVa(lpContext, iTag, FALSE); // Disables VerifyPeer.
+			case 64: // cURLOPT_SSL_VERIFYPEER
+				iResult = cURLSetoptVa(lpContext, iTag, FALSE); // Disables VerifyPeer.
 				break;
 
-			case 10002: // CURLOPT_URL
+			case 10002: // cURLOPT_URL
 			{
 				std::string sUrl(va_arg(copy, PCHAR));
 
+				if (sUrl.find("ClientQuestLogin") != std::string::npos) isInLobby = !isInLobby;
+
 				// Check if the URLs host is EpicGames.
 				if (std::regex_search(sUrl, rEpicGames))
-					sUrl = std::regex_replace(sUrl, rEpicGames, Strings::Curl::HostURL);
+					sUrl = std::regex_replace(sUrl, rEpicGames, Strings::cURL::HostURL);
 
-				iResult = CurlSetoptVa(lpContext, iTag, sUrl.c_str());
+				iResult = cURLSetoptVa(lpContext, iTag, sUrl.c_str());
 				break;
 			}
 
 			default: // Everything else.
-				iResult = CurlSetopt(lpContext, iTag, list);
+				iResult = cURLSetopt(lpContext, iTag, list);
 				break;
 		}
 
@@ -59,34 +61,37 @@ namespace osmium
 		return iResult;
 	}
 
-	Curl::Curl() 
+	cURL::cURL() 
 	{
-		auto pCurlSetoptAddress = Util::FindPattern(Patterns::Curl::CurlSetOpt, Masks::Curl::CurlSetOpt);
-		if (!pCurlSetoptAddress) 
+		auto pcURLSetoptAddress = Util::FindPattern(Patterns::cURL::cURLSetOpt, Masks::cURL::cURLSetOpt);
+		if (!pcURLSetoptAddress) 
 		{
-			printf("Finding pattern for CurlSetopt has failed, exiting immediately!\n");
+			printf("Finding pattern for cURLSetopt has failed, exiting immediately!\n");
 			exit(EXIT_FAILURE);
 		}
 
-		CurlSetopt = reinterpret_cast<decltype(CurlSetopt)>(pCurlSetoptAddress);
+		cURLSetopt = reinterpret_cast<decltype(cURLSetopt)>(pcURLSetoptAddress);
 
-		auto pCurlEasySetoptAddress = Util::FindPattern(Patterns::Curl::CurlEasySetOpt, Masks::Curl::CurlEasySetOpt);
-		if (!pCurlEasySetoptAddress) 
+		auto pcURLEasySetoptAddress = Util::FindPattern(Patterns::cURL::cURLEasySetOpt, Masks::cURL::cURLEasySetOpt);
+		if (!pcURLEasySetoptAddress) 
 		{
-			printf("Finding pattern for CurlEasySetopt has failed, exiting immediately!\n");
+			printf("Finding pattern for cURLEasySetopt has failed, exiting immediately!\n");
 			exit(EXIT_FAILURE);
 		}
 
-		m_pCurlEasySetoptHook = new Hook(reinterpret_cast<uintptr_t>(pCurlEasySetoptAddress), reinterpret_cast<uintptr_t>(CurlEasySetopt));
-		if (!m_pCurlEasySetoptHook->bSuccess) 
+		m_pcURLEasySetoptHook = new Hook(reinterpret_cast<uintptr_t>(pcURLEasySetoptAddress), reinterpret_cast<uintptr_t>(cURLEasySetopt));
+		if (!m_pcURLEasySetoptHook->bSuccess) 
 		{
-			printf("Initializing hook for CurlEasySetopt has failed, exiting immediately!\n");
+			printf("Initializing hook for cURLEasySetopt has failed, exiting immediately!\n");
 			exit(EXIT_FAILURE);
 		}
+		
+		return;
 	}
-	Curl::~Curl() 
+	
+	cURL::~cURL() 
 	{
-		if (m_pCurlEasySetoptHook)
-			delete m_pCurlEasySetoptHook;
+		if (m_pcURLEasySetoptHook)
+			delete m_pcURLEasySetoptHook;
 	}
 }

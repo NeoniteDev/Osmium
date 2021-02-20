@@ -351,3 +351,9 @@ MigrationBackup/
 
 # Aurora.Runtime
 [Bb]uild/
+
+
+# Fortnite (SDK)
+**/SDK.hpp
+**/SDK
+**/Osmium/SDK/

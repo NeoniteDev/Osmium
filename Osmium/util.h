@@ -56,7 +56,7 @@ namespace osmium
 			{
 				pAddr = FindPattern(info.lpBaseOfDll, info.SizeOfImage, lpPattern, lpMask);
 
-				Sleep(50); // This could cause Fortnite to hang at startup.
+				Sleep(200); // This could cause Fortnite to hang at startup.
 			} 
 			while (!pAddr);
 

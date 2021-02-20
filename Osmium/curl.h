@@ -2,15 +2,16 @@
 
 #include "hook.h"
 
+inline bool isInLobby;
+
 namespace osmium
 {
-	class Curl 
+	class cURL 
 	{
-	private:
-		Hook* m_pCurlEasySetoptHook;
+		Hook* m_pcURLEasySetoptHook;
 
 	public:
-		Curl();
-		~Curl();
+		cURL();
+		~cURL();
 	};
 }

@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <regex>
+#include <locale>
 #include <winscard.h>
 
 #include <dxgi.h>
@@ -14,6 +15,12 @@
 #include <Psapi.h>
 #include <stdlib.h>
 #include <Windows.h>
+
+#include "SDK.hpp"
+#include "util.h"
+#include "enums.h"
+
+using namespace SDK;
 
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "winhttp.lib")
