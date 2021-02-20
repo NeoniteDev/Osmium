@@ -7,6 +7,7 @@ namespace osmium
 	{
 	public:
 		BOOL Status;
+		APlayerController* osPlayerController;
 
 		World();
 		~World();

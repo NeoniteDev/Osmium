@@ -1,9 +1,16 @@
 #include "curl.h"
 #include "framework.h"
+#include "globals.h"
+#include "native.h"
+#include "World.h"
 
 using namespace osmium;
 
-void dllMain()
+using namespace SDK;
+
+static bool isReady;
+
+void WINAPI dllMain()
 {
 	Util::InitConsole();
 
@@ -13,12 +20,17 @@ void dllMain()
 
 	while (true)
 	{
-		//When we are in lobby we let go.
-		if (isInLobby)
+		if (!isReady && isInLobby)
 		{
-			MessageBoxA(nullptr, "test", "osmium", MB_OK);
-			UFortGameViewportClient* GameViewport = UObject::FindObject<UFortGameViewportClient>("FortGameViewportClient Transient.FortEngine_1.FortGameViewportClient_1");
-			GameViewport->GameInstance->LocalPlayers[0]->PlayerController->SwitchLevel(L"Athena_Terrain?game=/Script/Engine.GameModeBase");
+			Native::Init();
+			isReady = !isReady;
+		}
+		
+		//When we are in lobby and everything is initalized, we are ready to go in-game at any time.
+		//NOTE (kemo): we will move this to a pe hook or url listening inside the world itself.
+		if (isReady && isInLobby && GetAsyncKeyState(VK_F5))
+		{
+			osWorld = new World();
 			break;
 		}
 
@@ -26,11 +38,11 @@ void dllMain()
 	}
 }
 
-BOOL WINAPI DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 {
 	if (dwReason == DLL_PROCESS_ATTACH)
 	{
-		dllMain();
+		CreateThread(0, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(&dllMain), nullptr, 0, 0);
 	}
 	else if (dwReason == DLL_PROCESS_DETACH) FreeLibraryAndExitThread(hModule, EXIT_SUCCESS);
 

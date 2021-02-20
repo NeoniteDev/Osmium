@@ -1,6 +1,13 @@
 #pragma once
 #include "framework.h"
 
+#define VALIDATE_ADDRESS(address, error) \
+    if (!address) { \
+        MessageBoxA(0, error, "Osmium", MB_OK); \
+        FreeLibraryAndExitThread(GetModuleHandle(NULL), 0); \
+        return; \
+    }
+
 namespace osmium
 {
 	class Util 
@@ -32,11 +39,12 @@ namespace osmium
 	public:
 		static __forceinline VOID InitConsole()
 		{
+			FILE* fDummy;
 			AllocConsole();
-
-			// Redirect stdout to our newly allocated console.
-			FILE* pFile;
-			freopen_s(&pFile, "CONOUT$", "w", stdout);
+			freopen_s(&fDummy, "CONIN$", "r", stdin);
+			freopen_s(&fDummy, "CONOUT$", "w", stderr);
+			freopen_s(&fDummy, "CONOUT$", "w", stdout);
+			//freopen_s(&fDummy, "ProcessEvent.log", "w", stdout);
 		}
 
 		static __forceinline uintptr_t BaseAddress()

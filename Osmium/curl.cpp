@@ -64,22 +64,17 @@ namespace osmium
 	cURL::cURL() 
 	{
 		auto pcURLSetoptAddress = Util::FindPattern(Patterns::cURL::cURLSetOpt, Masks::cURL::cURLSetOpt);
-		if (!pcURLSetoptAddress) 
-		{
-			printf("Finding pattern for cURLSetopt has failed, exiting immediately!\n");
-			exit(EXIT_FAILURE);
-		}
+
+		VALIDATE_ADDRESS(pcURLSetoptAddress, "Finding pattern for cURLSetopt has failed, exiting immediately!\n")
 
 		cURLSetopt = reinterpret_cast<decltype(cURLSetopt)>(pcURLSetoptAddress);
 
 		auto pcURLEasySetoptAddress = Util::FindPattern(Patterns::cURL::cURLEasySetOpt, Masks::cURL::cURLEasySetOpt);
-		if (!pcURLEasySetoptAddress) 
-		{
-			printf("Finding pattern for cURLEasySetopt has failed, exiting immediately!\n");
-			exit(EXIT_FAILURE);
-		}
-
+		
+		VALIDATE_ADDRESS(pcURLEasySetoptAddress, "Finding pattern for cURLEasySetopt has failed, exiting immediately!\n")
+		
 		m_pcURLEasySetoptHook = new Hook(reinterpret_cast<uintptr_t>(pcURLEasySetoptAddress), reinterpret_cast<uintptr_t>(cURLEasySetopt));
+		
 		if (!m_pcURLEasySetoptHook->bSuccess) 
 		{
 			printf("Initializing hook for cURLEasySetopt has failed, exiting immediately!\n");

@@ -16,9 +16,11 @@
 #include <stdlib.h>
 #include <Windows.h>
 
-#include "SDK.hpp"
 #include "util.h"
+#include "constants.h"
 #include "enums.h"
+
+#include "SDK.hpp"
 
 using namespace SDK;
 

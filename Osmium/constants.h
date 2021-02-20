@@ -15,7 +15,7 @@ namespace Masks
 	{
 		constexpr const char* cURLEasySetOpt = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 		constexpr const char* cURLSetOpt = "xxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-	}	
+	}
 }
 
 namespace Strings

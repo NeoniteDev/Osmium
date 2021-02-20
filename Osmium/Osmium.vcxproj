@@ -9,6 +9,10 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+        <ProjectConfiguration Include="Debug">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -123,8 +127,10 @@ xcopy "$(TargetPath)" "$(SolutionDir)Build\" /F /I /R /Y</Command>
     <ClInclude Include="constants.h" />
     <ClInclude Include="enums.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="globals.h" />
     <ClInclude Include="hook.h" />
     <ClInclude Include="SDK.hpp" />
+    <ClInclude Include="native.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>

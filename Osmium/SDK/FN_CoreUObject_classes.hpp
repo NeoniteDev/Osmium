@@ -36,7 +36,7 @@ public:
 
 	template<typename T>
 	static T* FindObject(const std::string& name)
-	{
+	{		
 		for (int i = 0; i < GetGlobalObjects().Num(); ++i)
 		{
 			auto object = GetGlobalObjects().GetByIndex(i);
@@ -45,8 +45,10 @@ public:
 			{
 				continue;
 			}
+
+			std::string ObjectFullName = object->GetFullName();
 	
-			if (object->GetFullName() == name)
+			if (ObjectFullName == name)
 			{
 				return static_cast<T*>(object);
 			}
