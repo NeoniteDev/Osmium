@@ -7,7 +7,16 @@ namespace osmium
 	{
 	public:
 		BOOL Status;
+
+		bool bIsSprinting;
+
+		bool bHasJumped;
+		bool bWantsToJump;
+		bool bWantsToSkydive;
+		bool bWantsToOpenGlider;
+
 		APlayerController* osPlayerController;
+		AFortPlayerPawnAthena* osPlayerPawn;
 
 		World();
 		~World();
