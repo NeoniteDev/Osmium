@@ -4,9 +4,6 @@
 
 using namespace osmium; 
 
-#define READ_POINTER(base, offset) (*(PVOID*)(((PBYTE)base + offset)))
-#define READ_DWORD(base, offset) (*(PDWORD)(((PBYTE)base + offset)))
-
 void GameThread()
 {
 	while (true)
@@ -57,17 +54,13 @@ World::World() : Status(EWorldStatus::Constructing)
 {
 	osPlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
 
+	Native::InitCheatManager();
+
 	osPlayerController->CheatManager->God();
 	osPlayerController->CheatManager->DestroyAll(AFortHLODSMActor::StaticClass());
 
-	Native::InitCheatManager();
-
 	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
 	osFortPlayerPawn = static_cast<AFortPlayerPawn*>(FindActor(AFortPlayerPawn::StaticClass()));
-
-	if (!osFortPlayerPawn)
-		MessageBoxA(nullptr, "Failed to find actor for AFortPlayerPawn!", "Error", MB_ICONERROR);
-
 	osPlayerController->Possess(osFortPlayerPawn);
 
 	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(osFortPlayerPawn);
@@ -82,8 +75,6 @@ World::World() : Status(EWorldStatus::Constructing)
 
 	osAthenaPlayerPawn->K2_SetActorLocationAndRotation(Location, Rotation, false, true, new FHitResult());
 
-	osAthenaPlayerPawn->OnRep_CustomizationLoadout();
-
 	auto AthenaPlayerState = reinterpret_cast<AFortPlayerStateAthena*>(osAthenaPlayerPawn->PlayerState);
 	auto PlayerState = reinterpret_cast<AFortPlayerState*>(AthenaPlayerState);
 
@@ -96,6 +87,8 @@ World::World() : Status(EWorldStatus::Constructing)
 	PlayerState->OnRep_CharacterParts();
 	PlayerState->OnRep_ShowHeroBackpack();
 
+	osAthenaPlayerPawn->OnRep_CustomizationLoadout();
+
 	FortPlayerController->ServerReadyToStartMatch();
 
 	auto GameMode = reinterpret_cast<AGameMode*>(GEngine->GameViewport->World->AuthorityGameMode);
@@ -107,26 +100,19 @@ World::World() : Status(EWorldStatus::Constructing)
 }
 
 
-AActor* osmium::World::FindActor(UClass* pClass)
+UObject* osmium::World::FindActor(UClass* pClass)
 {
-	auto PersistentLevel = GEngine->GameViewport->World->PersistentLevel;
+	TArray<AActor*> Actors;
 
-	const DWORD AActors = 0x98;
+	auto GameplayStatics = UGameplayStatics::StaticClass()->CreateDefaultObject<UGameplayStatics>();
+	GameplayStatics->STATIC_GetAllActorsOfClass(GEngine->GameViewport->World, pClass, &Actors);
 
-	for (int i = 0x00; i < READ_DWORD(PersistentLevel, AActors + sizeof(void*)); i++)
+	if (Actors.Num() > 0)
 	{
-		auto Actors = READ_POINTER(PersistentLevel, AActors);
-
-		auto pActor = static_cast<AActor*>(READ_POINTER(Actors, i * sizeof(void*)));
-
-		if (pActor)
-		{
-			MessageBoxA(nullptr, pActor->GetFullName().c_str(), "", MB_OK);
-			
-			if (pActor->IsA(pClass)) return pActor;
-		}
+		AActor* pActor = Actors.operator[](0);
+		if (pActor) return pActor;
 	}
-
+	
 	return nullptr;
 }
 

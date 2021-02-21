@@ -18,6 +18,6 @@ namespace osmium
 		World();
 		~World();
 
-		AActor* FindActor(UClass* pClass);
+		UObject* FindActor(UClass* pClass);
 	};
 }
