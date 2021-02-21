@@ -8,17 +8,16 @@ namespace osmium
 	public:
 		BOOL Status;
 
+		bool bHasJumped;
 		bool bIsSprinting;
 
-		bool bHasJumped;
-		bool bWantsToJump;
-		bool bWantsToSkydive;
-		bool bWantsToOpenGlider;
-
+		AFortPlayerPawn* osFortPlayerPawn;
 		APlayerController* osPlayerController;
-		AFortPlayerPawnAthena* osPlayerPawn;
+		AFortPlayerPawnAthena* osAthenaPlayerPawn;
 
 		World();
 		~World();
+
+		AActor* FindActor(UClass* pClass);
 	};
 }

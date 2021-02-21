@@ -2,7 +2,10 @@
 #include "native.h"
 #include "globals.h"
 
-using namespace osmium;
+using namespace osmium; 
+
+#define READ_POINTER(base, offset) (*(PVOID*)(((PBYTE)base + offset)))
+#define READ_DWORD(base, offset) (*(PDWORD)(((PBYTE)base + offset)))
 
 void GameThread()
 {
@@ -12,10 +15,8 @@ void GameThread()
 		if (!osWorld->bIsSprinting)
 		{
 			osWorld->bIsSprinting = true;
-			if (osWorld->osPlayerPawn->CurrentWeapon && !osWorld->osPlayerPawn->CurrentWeapon->IsReloading() && !osWorld->osPlayerPawn->CurrentWeapon->bIsTargeting) osWorld
-				->osPlayerPawn->
-				CurrentMovementStyle =
-				wantsToSprint ? EFortMovementStyle::Sprinting : EFortMovementStyle::Running;
+			if (osWorld->osAthenaPlayerPawn->CurrentWeapon && !osWorld->osAthenaPlayerPawn->CurrentWeapon->IsReloading() && !osWorld->osAthenaPlayerPawn->CurrentWeapon->bIsTargeting) 
+				osWorld->osAthenaPlayerPawn->CurrentMovementStyle = wantsToSprint ? EFortMovementStyle::Sprinting : EFortMovementStyle::Running;
 		}
 		else osWorld->bIsSprinting = false;
 
@@ -28,11 +29,18 @@ void GameThread()
 				bool isInAircraft = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController)->IsInAircraft();
 				if (!isInAircraft)
 				{
-					if (osWorld->osPlayerPawn->IsSkydiving() && !osWorld->osPlayerPawn->IsParachuteOpen() && !osWorld->osPlayerPawn->IsParachuteForcedOpen()) osWorld->bWantsToOpenGlider = true;
-					else if (osWorld->osPlayerPawn->IsSkydiving() && osWorld->osPlayerPawn->IsParachuteOpen() && !osWorld->osPlayerPawn->IsParachuteForcedOpen()) osWorld->bWantsToSkydive = true;
-					else if (osWorld->osPlayerPawn->IsJumpProvidingForce())
-						//osWorld->bWantsToJump = true;
-						osWorld->osPlayerPawn->Jump();
+					if (osWorld->osAthenaPlayerPawn->IsSkydiving() && !osWorld->osAthenaPlayerPawn->IsParachuteForcedOpen())
+					{
+						if (!osWorld->osAthenaPlayerPawn->IsParachuteOpen())
+							osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 3);
+
+						if (osWorld->osAthenaPlayerPawn->IsParachuteOpen())
+							osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 4);
+
+						osWorld->osAthenaPlayerPawn->OnRep_IsParachuteOpen(osWorld->osAthenaPlayerPawn->IsParachuteOpen());
+					}
+					else if (osWorld->osAthenaPlayerPawn->IsJumpProvidingForce())
+						osWorld->osAthenaPlayerPawn->Jump();
 				}
 			}
 		}
@@ -48,14 +56,23 @@ void GameThread()
 World::World() : Status(EWorldStatus::Constructing)
 {
 	osPlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
-	osPlayerPawn = static_cast<AFortPlayerPawnAthena*>(osPlayerController->AcknowledgedPawn);
-
-	Native::InitCheatManager();
 
 	osPlayerController->CheatManager->God();
 	osPlayerController->CheatManager->DestroyAll(AFortHLODSMActor::StaticClass());
 
-	auto Location = osPlayerPawn->K2_GetActorLocation();
+	Native::InitCheatManager();
+
+	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
+	osFortPlayerPawn = static_cast<AFortPlayerPawn*>(FindActor(AFortPlayerPawn::StaticClass()));
+
+	if (!osFortPlayerPawn)
+		MessageBoxA(nullptr, "Failed to find actor for AFortPlayerPawn!", "Error", MB_ICONERROR);
+
+	osPlayerController->Possess(osFortPlayerPawn);
+
+	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(osFortPlayerPawn);
+
+	auto Location = osAthenaPlayerPawn->K2_GetActorLocation();
 	Location.Z = Location.Z + 4000;
 
 	FRotator Rotation;
@@ -63,26 +80,55 @@ World::World() : Status(EWorldStatus::Constructing)
 	Rotation.Yaw = 0;
 	Rotation.Roll = 0;
 
-	osPlayerPawn->K2_SetActorLocationAndRotation(Location, Rotation, false, true, new FHitResult());
+	osAthenaPlayerPawn->K2_SetActorLocationAndRotation(Location, Rotation, false, true, new FHitResult());
 
-	osPlayerPawn->OnRep_CustomizationLoadout();
+	osAthenaPlayerPawn->OnRep_CustomizationLoadout();
 
-	auto PlayerState = reinterpret_cast<AFortPlayerStateAthena*>(osPlayerPawn->PlayerState);
-	auto HeroCharParts = reinterpret_cast<AFortPlayerControllerAthena*>(osPlayerController)->StrongMyHero->CharacterParts;
+	auto AthenaPlayerState = reinterpret_cast<AFortPlayerStateAthena*>(osAthenaPlayerPawn->PlayerState);
+	auto PlayerState = reinterpret_cast<AFortPlayerState*>(AthenaPlayerState);
 
-	for (auto i = 0; i < HeroCharParts.Num(); i++) PlayerState->CharacterParts[i] = HeroCharParts[i];
+	auto AthenaPlayerController = reinterpret_cast<AFortPlayerControllerAthena*>(osPlayerController);
+	auto FortPlayerController = reinterpret_cast<AFortPlayerController*>(osPlayerController);
 
-	reinterpret_cast<AFortPlayerState*>(PlayerState)->OnRep_CharacterParts();
-	reinterpret_cast<AFortPlayerState*>(PlayerState)->OnRep_ShowHeroBackpack();
+	auto HeroCharParts = AthenaPlayerController->StrongMyHero->CharacterParts;
+	for (auto i = 0; i < HeroCharParts.Num(); i++) AthenaPlayerState->CharacterParts[i] = HeroCharParts[i];
 
-	reinterpret_cast<AFortPlayerController*>(osPlayerController)->ServerReadyToStartMatch();
-	reinterpret_cast<AGameMode*>(GEngine->GameViewport->World->AuthorityGameMode)->StartMatch();
+	PlayerState->OnRep_CharacterParts();
+	PlayerState->OnRep_ShowHeroBackpack();
+
+	FortPlayerController->ServerReadyToStartMatch();
+
+	auto GameMode = reinterpret_cast<AGameMode*>(GEngine->GameViewport->World->AuthorityGameMode);
+	GameMode->StartMatch();
 
 	//CreateThread(nullptr, NULL, reinterpret_cast<LPTHREAD_START_ROUTINE>(&GameThread), nullptr, NULL, nullptr);
 
 	return;
 }
 
+
+AActor* osmium::World::FindActor(UClass* pClass)
+{
+	auto PersistentLevel = GEngine->GameViewport->World->PersistentLevel;
+
+	const DWORD AActors = 0x98;
+
+	for (int i = 0x00; i < READ_DWORD(PersistentLevel, AActors + sizeof(void*)); i++)
+	{
+		auto Actors = READ_POINTER(PersistentLevel, AActors);
+
+		auto pActor = static_cast<AActor*>(READ_POINTER(Actors, i * sizeof(void*)));
+
+		if (pActor)
+		{
+			MessageBoxA(nullptr, pActor->GetFullName().c_str(), "", MB_OK);
+			
+			if (pActor->IsA(pClass)) return pActor;
+		}
+	}
+
+	return nullptr;
+}
 
 /// <summary>
 ///  Deconstruct Osmium.
