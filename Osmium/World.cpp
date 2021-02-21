@@ -2,7 +2,7 @@
 #include "native.h"
 #include "globals.h"
 
-using namespace osmium; 
+using namespace osmium;
 
 void GameThread()
 {
@@ -12,7 +12,7 @@ void GameThread()
 		if (!osWorld->bIsSprinting)
 		{
 			osWorld->bIsSprinting = true;
-			if (osWorld->osAthenaPlayerPawn->CurrentWeapon && !osWorld->osAthenaPlayerPawn->CurrentWeapon->IsReloading() && !osWorld->osAthenaPlayerPawn->CurrentWeapon->bIsTargeting) 
+			if (osWorld->osAthenaPlayerPawn->CurrentWeapon && !osWorld->osAthenaPlayerPawn->CurrentWeapon->IsReloading() && !osWorld->osAthenaPlayerPawn->CurrentWeapon->bIsTargeting)
 				osWorld->osAthenaPlayerPawn->CurrentMovementStyle = wantsToSprint ? EFortMovementStyle::Sprinting : EFortMovementStyle::Running;
 		}
 		else osWorld->bIsSprinting = false;
@@ -94,7 +94,15 @@ World::World() : Status(EWorldStatus::Constructing)
 	auto GameMode = reinterpret_cast<AGameMode*>(GEngine->GameViewport->World->AuthorityGameMode);
 	GameMode->StartMatch();
 
-	//CreateThread(nullptr, NULL, reinterpret_cast<LPTHREAD_START_ROUTINE>(&GameThread), nullptr, NULL, nullptr);
+
+
+	/*auto MovieSceneSequencePlayer = UMovieSceneSequencePlayer::StaticClass()->CreateDefaultObject<UMovieSceneSequencePlayer>();
+	auto SequenceToPlay = UObject::FindObject<void*>("LevelSequencePlayer thethinghere");
+
+	MovieSceneSequencePlayer->ProcessEvent(nullptr, SequenceToPlay);
+
+
+	CreateThread(nullptr, NULL, reinterpret_cast<LPTHREAD_START_ROUTINE>(&GameThread), nullptr, NULL, nullptr);*/
 
 	return;
 }
@@ -112,7 +120,7 @@ UObject* osmium::World::FindActor(UClass* pClass)
 		AActor* pActor = Actors.operator[](0);
 		if (pActor) return pActor;
 	}
-	
+
 	return nullptr;
 }
 
