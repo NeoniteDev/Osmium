@@ -12,8 +12,10 @@ void GameThread()
 		if (!osWorld->bIsSprinting)
 		{
 			osWorld->bIsSprinting = true;
-			if (osWorld->osPlayerPawn->CurrentWeapon &&  !osWorld->osPlayerPawn->CurrentWeapon->IsReloading() && !osWorld->osPlayerPawn->CurrentWeapon->bIsTargeting)
-				osWorld->osPlayerPawn->CurrentMovementStyle = wantsToSprint ? EFortMovementStyle::Sprinting : EFortMovementStyle::Running;
+			if (osWorld->osPlayerPawn->CurrentWeapon && !osWorld->osPlayerPawn->CurrentWeapon->IsReloading() && !osWorld->osPlayerPawn->CurrentWeapon->bIsTargeting) osWorld
+				->osPlayerPawn->
+				CurrentMovementStyle =
+				wantsToSprint ? EFortMovementStyle::Sprinting : EFortMovementStyle::Running;
 		}
 		else osWorld->bIsSprinting = false;
 
@@ -26,12 +28,11 @@ void GameThread()
 				bool isInAircraft = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController)->IsInAircraft();
 				if (!isInAircraft)
 				{
-					if (osWorld->osPlayerPawn->IsSkydiving() && !osWorld->osPlayerPawn->IsParachuteOpen() && !osWorld->osPlayerPawn->IsParachuteForcedOpen())
-						osWorld->bWantsToOpenGlider = true;
-					else if (osWorld->osPlayerPawn->IsSkydiving() && osWorld->osPlayerPawn->IsParachuteOpen() && !osWorld->osPlayerPawn->IsParachuteForcedOpen())
-						osWorld->bWantsToSkydive = true;
+					if (osWorld->osPlayerPawn->IsSkydiving() && !osWorld->osPlayerPawn->IsParachuteOpen() && !osWorld->osPlayerPawn->IsParachuteForcedOpen()) osWorld->bWantsToOpenGlider = true;
+					else if (osWorld->osPlayerPawn->IsSkydiving() && osWorld->osPlayerPawn->IsParachuteOpen() && !osWorld->osPlayerPawn->IsParachuteForcedOpen()) osWorld->bWantsToSkydive = true;
 					else if (osWorld->osPlayerPawn->IsJumpProvidingForce())
-						osWorld->bWantsToJump = true;
+						//osWorld->bWantsToJump = true;
+						osWorld->osPlayerPawn->Jump();
 				}
 			}
 		}
@@ -69,9 +70,7 @@ World::World() : Status(EWorldStatus::Constructing)
 	auto PlayerState = reinterpret_cast<AFortPlayerStateAthena*>(osPlayerPawn->PlayerState);
 	auto HeroCharParts = reinterpret_cast<AFortPlayerControllerAthena*>(osPlayerController)->StrongMyHero->CharacterParts;
 
-	PlayerState->CharacterParts[0] = HeroCharParts[0];
-	PlayerState->CharacterParts[1] = HeroCharParts[1];
-	PlayerState->CharacterParts[2] = HeroCharParts[2];
+	for (auto i = 0; i < HeroCharParts.Num(); i++) PlayerState->CharacterParts[i] = HeroCharParts[i];
 
 	reinterpret_cast<AFortPlayerState*>(PlayerState)->OnRep_CharacterParts();
 	reinterpret_cast<AFortPlayerState*>(PlayerState)->OnRep_ShowHeroBackpack();
@@ -90,5 +89,4 @@ World::World() : Status(EWorldStatus::Constructing)
 /// </summary>
 World::~World()
 {
-
 }
