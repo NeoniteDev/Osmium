@@ -32,13 +32,8 @@ namespace Native
 		UObject* CheatManager = StaticConstructObject(
 			UCheatManager::StaticClass(),
 			PlayerController,
-			nullptr,
-			0,
-			0,
-			nullptr,
-			false,
-			nullptr,
-			false
+			nullptr, 0, 0, nullptr,
+			false, nullptr, false
 		);
 
 		// Assign the CheatManager to the PlayerController.
@@ -54,13 +49,8 @@ namespace Native
 		UObject* Console = StaticConstructObject(
 			GEngine->ConsoleClass,
 			GEngine->GameViewport,
-			nullptr,
-			0,
-			0,
-			nullptr,
-			false,
-			nullptr,
-			false
+			nullptr, 0, 0, nullptr, 
+			false, nullptr, false
 		);
 
 		// Assign the constructed console to the GameViewports' ViewportConsole.

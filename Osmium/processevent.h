@@ -1,5 +1,6 @@
 #pragma once
 #include "framework.h"
+#include "native.h"
 #include "globals.h"
 #include "curl.h"
 
@@ -21,7 +22,6 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 {
 	const auto nObj = pObj->GetName();
 	const auto nFunc = pFunc->GetName();
-
 
 	if (isInLobby && nFunc == "ReadyToStartMatch" && osWorldStatus == InLobby)
 	{

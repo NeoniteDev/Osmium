@@ -25,6 +25,11 @@ void WINAPI dllMain()
 			Native::Init();
 			isReady = !isReady;
 		}
+		if (isReady && isInLobby && hasStarted)
+		{
+			auto PlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
+			PlayerController->SwitchLevel(L"Athena_Terrain");
+		}
 		
 		// Run the thread at 30 frames a second.
 		Sleep(1000 / 30);

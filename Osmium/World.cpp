@@ -88,13 +88,13 @@ World::World()
 
 	auto HeroCharParts = AthenaPlayerController->StrongMyHero->CharacterParts;
 
-	auto KismetSysLib_C = UKismetSystemLibrary::StaticClass();
+	/*auto KismetSysLib_C = UKismetSystemLibrary::StaticClass();
 	auto KismetSysLib = static_cast<UKismetSystemLibrary*>(KismetSysLib_C->CreateDefaultObject());
 
 	auto MasterMesh = reinterpret_cast<USkeletalMesh*>(KismetSysLib->STATIC_Conv_SoftObjectReferenceToObject(reinterpret_cast<void*>(HeroCharParts[0]->MasterSkeletalMeshes[0])));
 	osAthenaPlayerPawn->Mesh->SetSkeletalMesh(MasterMesh, true);
 
-	//osAthenaPlayerPawn->Mesh->SetAnimInstanceClass(UFortnite_M_Avg_Player_AnimBlueprint_C::StaticClass());
+	osAthenaPlayerPawn->Mesh->SetAnimInstanceClass(UFortnite_M_Avg_Player_AnimBlueprint_C::StaticClass());*/
 
 	for (auto i = 0; i < HeroCharParts.Num(); i++) AthenaPlayerState->CharacterParts[i] = HeroCharParts[i];
 

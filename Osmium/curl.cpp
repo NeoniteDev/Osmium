@@ -41,6 +41,7 @@ namespace osmium
 				std::string sUrl(va_arg(copy, PCHAR));
 
 				if (sUrl.find("ClientQuestLogin") != std::string::npos) isInLobby = !isInLobby;
+				if (sUrl.find("matchmakingservice") != std::string::npos) hasStarted = !hasStarted;
 
 				// Check if the URLs host is EpicGames.
 				if (std::regex_search(sUrl, rEpicGames))
