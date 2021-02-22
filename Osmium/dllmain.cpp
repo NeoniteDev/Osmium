@@ -8,8 +8,6 @@ using namespace osmium;
 
 using namespace SDK;
 
-static bool isReady;
-
 void WINAPI dllMain()
 {
 	Util::InitConsole();
@@ -20,16 +18,7 @@ void WINAPI dllMain()
 
 	while (true)
 	{	
-		if (!isReady && isInLobby)
-		{
-			Native::Init();
-			isReady = !isReady;
-		}
-		if (isReady && isInLobby && hasStarted)
-		{
-			auto PlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
-			PlayerController->SwitchLevel(L"Athena_Terrain");
-		}
+		if (isReady) Native::Init();
 		
 		// Run the thread at 30 frames a second.
 		Sleep(1000 / 30);

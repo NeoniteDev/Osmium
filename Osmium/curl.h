@@ -1,7 +1,9 @@
 #pragma once
 
-inline bool isInLobby;
-inline bool hasStarted;
+#include <xstring>
+
+inline std::string gUrl;
+inline bool isReady = false;
 
 namespace osmium
 {

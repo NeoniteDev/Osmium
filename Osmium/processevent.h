@@ -1,6 +1,5 @@
 #pragma once
 #include "framework.h"
-#include "native.h"
 #include "globals.h"
 #include "curl.h"
 
@@ -23,10 +22,15 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 	const auto nObj = pObj->GetName();
 	const auto nFunc = pFunc->GetName();
 
-	if (isInLobby && nFunc == "ReadyToStartMatch" && osWorldStatus == InLobby)
+	if (gUrl.find("matchmakingservice") != std::string::npos)
+	{
+		auto PlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
+		PlayerController->SwitchLevel(L"Athena_Terrain");
+	}
+	if (nFunc == "ReadyToStartMatch" && osWorldStatus == InLobby)
 	{
 		osWorld = new osmium::World();
-		osWorldStatus = Constructing;
+		osWorldStatus = EWorldStatus::Constructing;
 	}
 
 

@@ -4,8 +4,6 @@
 
 using namespace osmium;
 
-inline bool isReady;
-
 void GameThread()
 {
 	while (true)
