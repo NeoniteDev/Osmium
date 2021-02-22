@@ -13,12 +13,7 @@ void GameThread()
 		{
 			osWorld->bIsSprinting = true;
 			if (osWorld->osAthenaPlayerPawn->CurrentWeapon && !osWorld->osAthenaPlayerPawn->CurrentWeapon->IsReloading() && !osWorld->osAthenaPlayerPawn->CurrentWeapon->bIsTargeting)
-				osWorld
-				->
-				osAthenaPlayerPawn
-				->
-				CurrentMovementStyle
-				= wantsToSprint ? EFortMovementStyle::Sprinting : EFortMovementStyle::Running;
+				osWorld ->osAthenaPlayerPawn->CurrentMovementStyle = wantsToSprint ? EFortMovementStyle::Sprinting : EFortMovementStyle::Running;
 		}
 		else osWorld->bIsSprinting = false;
 
@@ -33,13 +28,16 @@ void GameThread()
 				{
 					if (osWorld->osAthenaPlayerPawn->IsSkydiving() && !osWorld->osAthenaPlayerPawn->IsParachuteForcedOpen())
 					{
-						if (!osWorld->osAthenaPlayerPawn->IsParachuteOpen()) osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 3);
+						if (!osWorld->osAthenaPlayerPawn->IsParachuteOpen()) 
+							osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 3);
 
-						if (osWorld->osAthenaPlayerPawn->IsParachuteOpen()) osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 4);
+						if (osWorld->osAthenaPlayerPawn->IsParachuteOpen()) 
+							osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 4);
 
 						osWorld->osAthenaPlayerPawn->OnRep_IsParachuteOpen(osWorld->osAthenaPlayerPawn->IsParachuteOpen());
 					}
-					else if (osWorld->osAthenaPlayerPawn->IsJumpProvidingForce()) osWorld->osAthenaPlayerPawn->Jump();
+					else if (osWorld->osAthenaPlayerPawn->IsJumpProvidingForce()) 
+						osWorld->osAthenaPlayerPawn->Jump();
 				}
 			}
 		}
@@ -63,9 +61,7 @@ World::World()
 	osPlayerController->CheatManager->DestroyAll(AFortHLODSMActor::StaticClass());
 
 	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
-
 	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(FindActor(AFortPlayerPawnAthena::StaticClass()));
-
 	osPlayerController->Possess(osAthenaPlayerPawn);
 
 	auto Location = osAthenaPlayerPawn->K2_GetActorLocation();
@@ -78,37 +74,32 @@ World::World()
 
 	osAthenaPlayerPawn->K2_SetActorLocationAndRotation(Location, Rotation, false, true, new FHitResult());
 
-	auto AthenaPlayerState = reinterpret_cast<AFortPlayerStateAthena*>(osAthenaPlayerPawn->PlayerState);
-
-	auto PlayerState = reinterpret_cast<AFortPlayerState*>(AthenaPlayerState);
-
-	const auto AthenaPlayerController = reinterpret_cast<AFortPlayerControllerAthena*>(osPlayerController);
-
+	auto AthenaPlayerController = reinterpret_cast<AFortPlayerControllerAthena*>(osPlayerController);
 	auto FortPlayerController = reinterpret_cast<AFortPlayerController*>(osPlayerController);
+	auto AthenaPlayerState = reinterpret_cast<AFortPlayerStateAthena*>(osAthenaPlayerPawn->PlayerState);
+	auto PlayerState = reinterpret_cast<AFortPlayerState*>(AthenaPlayerState);
 
 	auto HeroCharParts = AthenaPlayerController->StrongMyHero->CharacterParts;
 
-	auto Skeleton = UObject::FindObject<USkeletalMesh>("SkeletalMesh SK_M_MALE_Base_Skeleton.SK_M_MALE_Base_Skeleton");
-
-	if (!Skeleton) Skeleton = UObject::FindObject<USkeletalMesh>("SkeletalMesh SK_M_Female_Base_Skeleton.SK_M_Female_Base_Skeleton");
-
-	if (Skeleton) osAthenaPlayerPawn->Mesh->SetSkeletalMesh(Skeleton, true);
-
 	for (auto i = 0; i < HeroCharParts.Num(); i++) AthenaPlayerState->CharacterParts[i] = HeroCharParts[i];
 
-	PlayerState->OnRep_CharacterParts();
+	auto FortWorker = static_cast<UFortWorker*>(AthenaPlayerController->StrongMyHero);
+	auto Gender = static_cast<EFortCustomGender>(FortWorker->Gender);
 
+	auto MaleSkeleton = UObject::FindObject<USkeletalMesh>("SkeletalMesh SK_M_MALE_Base_Skeleton.SK_M_MALE_Base_Skeleton");
+	auto FemaleSkeleton = UObject::FindObject<USkeletalMesh>("SkeletalMesh SK_M_Female_Base_Skeleton.SK_M_Female_Base_Skeleton");
+
+	if (Gender == EFortCustomGender::Female) osAthenaPlayerPawn->Mesh->SetSkeletalMesh(FemaleSkeleton, true);
+	else osAthenaPlayerPawn->Mesh->SetSkeletalMesh(MaleSkeleton, true);
+
+	PlayerState->OnRep_CharacterParts();
 	osAthenaPlayerPawn->OnRep_CustomizationLoadout();
 
 	FortPlayerController->ServerReadyToStartMatch();
-
 	auto GameMode = reinterpret_cast<AGameMode*>(GEngine->GameViewport->World->AuthorityGameMode);
-
 	GameMode->StartMatch();
 
-
-	/*
-	CreateThread(nullptr, NULL, reinterpret_cast<LPTHREAD_START_ROUTINE>(&GameThread), nullptr, NULL, nullptr);*/
+	//CreateThread(nullptr, NULL, reinterpret_cast<LPTHREAD_START_ROUTINE>(&GameThread), nullptr, NULL, nullptr);
 
 	return;
 }
