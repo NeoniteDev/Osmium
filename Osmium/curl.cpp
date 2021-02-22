@@ -65,19 +65,14 @@ namespace osmium
 
 	cURL::cURL() 
 	{
-		auto pcURLSetoptAddress = Util::FindPattern(Patterns::cURL::cURLSetOpt, Masks::cURL::cURLSetOpt);
+		const auto pcURLSetoptAddress = Util::FindPattern(Patterns::cURL::cURLSetOpt, Masks::cURL::cURLSetOpt);
 		VALIDATE_ADDRESS(pcURLSetoptAddress, "Finding pattern for cURLSetopt has failed, exiting immediately!\n")
+		
 		cURLSetopt = reinterpret_cast<decltype(cURLSetopt)>(pcURLSetoptAddress);
 
-		auto pcURLEasySetoptAddress = Util::FindPattern(Patterns::cURL::cURLEasySetOpt, Masks::cURL::cURLEasySetOpt);		
+		const auto pcURLEasySetoptAddress = Util::FindPattern(Patterns::cURL::cURLEasySetOpt, Masks::cURL::cURLEasySetOpt);		
 		VALIDATE_ADDRESS(pcURLEasySetoptAddress, "Finding pattern for cURLEasySetopt has failed, exiting immediately!\n")
 
 		VEH::EnableHook(pcURLEasySetoptAddress, cURLEasySetopt);
-		
-		return;
-	}
-	
-	cURL::~cURL() 
-	{
 	}
 }

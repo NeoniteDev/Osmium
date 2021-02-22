@@ -22,9 +22,9 @@ namespace Strings
 {
 	namespace Maps
 	{
-		constexpr const char* Frontend = "Frontend_Lobby_Default?game=/Script/FortniteGame.FortGameModeFrontEnd";
-		constexpr const char* AthenaTerrain = "Athena_Terrain?game=/Game/Athena/Athena_GameMode.Athena_GameMode_C";
-		constexpr const char* AthenaTerrainBase = "Athena_Terrain?game=/Script/FortniteGame.FortGameModeBase";
+		constexpr const wchar_t* Frontend = L"Frontend?game=/Script/FortniteGame.FortGameModeFrontEnd";
+		constexpr const wchar_t* AthenaTerrain = L"Athena_Terrain?game=/Game/Athena/Athena_GameMode.Athena_GameMode_C";
+		constexpr const wchar_t* AthenaTerrainBase = L"Athena_Terrain?game=/Script/FortniteGame.FortGameModeBase";
 	}
 	namespace cURL
 	{

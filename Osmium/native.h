@@ -4,20 +4,6 @@
 
 using namespace osmium;
 
-inline UWorld* GWorld;
-inline UEngine* GEngine;
-inline UObject* (*StaticConstructObject)(
-	UClass* Class,
-	UObject* InOuter,
-	void* Name,
-	int SetFlags,
-	unsigned int InternalSetFlags,
-	UObject* Template,
-	bool bCopyTransientsFromClassDefaults,
-	void* InstanceGraph,
-	bool bAssumeTemplateIsArchetype
-);
-
 namespace Native
 {
 	/// <summary>
@@ -68,7 +54,9 @@ namespace Native
 		const auto ModuleBase = Util::BaseAddress();
 
 		GEngine = *reinterpret_cast<UEngine**>(ModuleBase + UENGINE_OFFSET);
-		GWorld = *reinterpret_cast<UWorld**>(ModuleBase + UWORLD_OFFSET);
+
+		//Deref if used "(*GWorld)->XXXXXX", Or use GEngine->GameViewport->World
+		GWorld = reinterpret_cast<UWorld**>(ModuleBase + UWORLD_OFFSET);
 
 		StaticConstructObject = decltype(StaticConstructObject)(ModuleBase + SCOI_OFFSET);
 

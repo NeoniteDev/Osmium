@@ -24,8 +24,10 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 
 	if (gUrl.find("matchmakingservice") != std::string::npos)
 	{
+		gUrl.clear();
 		auto PlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
-		PlayerController->SwitchLevel(L"Athena_Terrain");
+		PlayerController->SwitchLevel(Strings::Maps::AthenaTerrain);
+		goto out;
 	}
 	if (nFunc == "ReadyToStartMatch" && osWorldStatus == InLobby)
 	{

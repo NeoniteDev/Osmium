@@ -17,8 +17,12 @@ void WINAPI dllMain()
 	cURL* cURLHook = new cURL;
 
 	while (true)
-	{	
-		if (isReady) Native::Init();
+	{
+		if (isReady)
+		{
+			Native::Init();
+			break;
+		}
 		
 		// Run the thread at 30 frames a second.
 		Sleep(1000 / 30);
@@ -27,8 +31,7 @@ void WINAPI dllMain()
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 {
-	if (dwReason == DLL_PROCESS_ATTACH)
-		CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(&dllMain), nullptr, 0, nullptr);
+	if (dwReason == DLL_PROCESS_ATTACH) CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(&dllMain), nullptr, 0, nullptr);
 
 	else if (dwReason == DLL_PROCESS_DETACH) FreeLibraryAndExitThread(hModule, EXIT_SUCCESS);
 

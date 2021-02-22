@@ -12,6 +12,5 @@ namespace osmium
 
 	public:
 		cURL();
-		~cURL();
 	};
 }
