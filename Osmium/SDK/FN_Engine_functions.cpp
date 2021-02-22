@@ -56897,11 +56897,12 @@ struct FString UKismetSystemLibrary::STATIC_Conv_SoftObjectReferenceToString()
 // Parameters:
 // class UObject*                 ReturnValue                    (Parm, OutParm, ZeroConstructor, ReturnParm, IsPlainOldData)
 
-class UObject* UKismetSystemLibrary::STATIC_Conv_SoftObjectReferenceToObject()
+class UObject* UKismetSystemLibrary::STATIC_Conv_SoftObjectReferenceToObject(void* SoftObjectReference)
 {
 	static auto fn = UObject::FindObject<UFunction>("Function Engine.KismetSystemLibrary.Conv_SoftObjectReferenceToObject");
 
 	UKismetSystemLibrary_Conv_SoftObjectReferenceToObject_Params params;
+	params.SoftObjectReference = SoftObjectReference;
 
 	auto flags = fn->FunctionFlags;
 	fn->FunctionFlags |= 0x400;

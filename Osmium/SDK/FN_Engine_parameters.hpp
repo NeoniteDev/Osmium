@@ -17192,6 +17192,7 @@ struct UKismetSystemLibrary_Conv_SoftObjectReferenceToString_Params
 // Function Engine.KismetSystemLibrary.Conv_SoftObjectReferenceToObject
 struct UKismetSystemLibrary_Conv_SoftObjectReferenceToObject_Params
 {
+	void*                                              SoftObjectReference;
 	class UObject*                                     ReturnValue;                                              // (Parm, OutParm, ZeroConstructor, ReturnParm, IsPlainOldData)
 };
 

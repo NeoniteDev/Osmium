@@ -11079,7 +11079,7 @@ public:
 	void STATIC_Delay(class UObject* WorldContextObject, float Duration, const struct FLatentActionInfo& LatentInfo);
 	void STATIC_CreateCopyForUndoBuffer(class UObject* ObjectToModify);
 	struct FString STATIC_Conv_SoftObjectReferenceToString();
-	class UObject* STATIC_Conv_SoftObjectReferenceToObject();
+	class UObject* STATIC_Conv_SoftObjectReferenceToObject(void* SoftObjectReference);
 	struct FString STATIC_Conv_SoftClassReferenceToString();
 	class UClass* STATIC_Conv_SoftClassReferenceToClass();
 	struct FString STATIC_Conv_PrimaryAssetTypeToString(const struct FPrimaryAssetType& PrimaryAssetType);

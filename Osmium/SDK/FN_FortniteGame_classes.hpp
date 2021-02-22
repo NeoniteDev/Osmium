@@ -4635,7 +4635,7 @@ public:
 	unsigned char                                      UnknownData02[0x28];                                      // 0x07A8(0x0028) UNKNOWN PROPERTY: SoftObjectProperty FortniteGame.CustomCharacterPart.DefaultMontageLookupTable
 	unsigned char                                      UnknownData03[0x28];                                      // 0x07D0(0x0028) UNKNOWN PROPERTY: SoftObjectProperty FortniteGame.CustomCharacterPart.OverrideMontageLookupTable
 	unsigned char                                      UnknownData04[0x28];                                      // 0x07F8(0x0028) UNKNOWN PROPERTY: SoftObjectProperty FortniteGame.CustomCharacterPart.SkeletalMesh
-	unsigned char                                      UnknownData05[0x10];                                      // 0x0820(0x0010) UNKNOWN PROPERTY: ArrayProperty FortniteGame.CustomCharacterPart.MasterSkeletalMeshes
+	unsigned char                                      MasterSkeletalMeshes[0x10];                                // 0x0820(0x0010) UNKNOWN PROPERTY: ArrayProperty FortniteGame.CustomCharacterPart.MasterSkeletalMeshes
 	bool                                               bSinglePieceMesh;                                         // 0x0830(0x0001) (Edit, ZeroConstructor, IsPlainOldData)
 	bool                                               bSupportsColorSwatches;                                   // 0x0831(0x0001) (Edit, ZeroConstructor, IsPlainOldData)
 	unsigned char                                      UnknownData06[0x6];                                       // 0x0832(0x0006) MISSED OFFSET

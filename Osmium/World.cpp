@@ -14,8 +14,12 @@ void GameThread()
 		if (!osWorld->bIsSprinting)
 		{
 			osWorld->bIsSprinting = true;
-			if (osWorld->osAthenaPlayerPawn->CurrentWeapon && !osWorld->osAthenaPlayerPawn->CurrentWeapon->IsReloading() && !osWorld->osAthenaPlayerPawn->CurrentWeapon->bIsTargeting)
-				osWorld->osAthenaPlayerPawn->CurrentMovementStyle = wantsToSprint ? EFortMovementStyle::Sprinting : EFortMovementStyle::Running;
+			if (osWorld->osAthenaPlayerPawn->CurrentWeapon && !osWorld->osAthenaPlayerPawn->CurrentWeapon->IsReloading() && !osWorld->osAthenaPlayerPawn->CurrentWeapon->bIsTargeting) osWorld
+			                                                                                                                                                                           ->
+			                                                                                                                                                                           osAthenaPlayerPawn
+			                                                                                                                                                                           ->
+			                                                                                                                                                                           CurrentMovementStyle
+			= wantsToSprint ? EFortMovementStyle::Sprinting : EFortMovementStyle::Running;
 		}
 		else osWorld->bIsSprinting = false;
 
@@ -30,16 +34,13 @@ void GameThread()
 				{
 					if (osWorld->osAthenaPlayerPawn->IsSkydiving() && !osWorld->osAthenaPlayerPawn->IsParachuteForcedOpen())
 					{
-						if (!osWorld->osAthenaPlayerPawn->IsParachuteOpen())
-							osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 3);
+						if (!osWorld->osAthenaPlayerPawn->IsParachuteOpen()) osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 3);
 
-						if (osWorld->osAthenaPlayerPawn->IsParachuteOpen())
-							osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 4);
+						if (osWorld->osAthenaPlayerPawn->IsParachuteOpen()) osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 4);
 
 						osWorld->osAthenaPlayerPawn->OnRep_IsParachuteOpen(osWorld->osAthenaPlayerPawn->IsParachuteOpen());
 					}
-					else if (osWorld->osAthenaPlayerPawn->IsJumpProvidingForce())
-						osWorld->osAthenaPlayerPawn->Jump();
+					else if (osWorld->osAthenaPlayerPawn->IsJumpProvidingForce()) osWorld->osAthenaPlayerPawn->Jump();
 				}
 			}
 		}
@@ -63,7 +64,7 @@ World::World()
 	osPlayerController->CheatManager->DestroyAll(AFortHLODSMActor::StaticClass());
 
 	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
-	
+
 	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(FindActor(AFortPlayerPawnAthena::StaticClass()));
 
 	osPlayerController->Possess(osAthenaPlayerPawn);
@@ -75,7 +76,7 @@ World::World()
 	Rotation.Pitch = 0;
 	Rotation.Yaw = 0;
 	Rotation.Roll = 0;
-	
+
 	osAthenaPlayerPawn->K2_SetActorLocationAndRotation(Location, Rotation, false, true, new FHitResult());
 
 	auto AthenaPlayerState = reinterpret_cast<AFortPlayerStateAthena*>(osAthenaPlayerPawn->PlayerState);
@@ -88,7 +89,16 @@ World::World()
 
 	auto HeroCharParts = AthenaPlayerController->StrongMyHero->CharacterParts;
 
+	auto KismetSysLib_C = UKismetSystemLibrary::StaticClass();
+	auto KismetSysLib = static_cast<UKismetSystemLibrary*>(KismetSysLib_C->CreateDefaultObject());
+
+	auto MasterMesh = reinterpret_cast<USkeletalMesh*>(KismetSysLib->STATIC_Conv_SoftObjectReferenceToObject(reinterpret_cast<void*>(HeroCharParts[0]->MasterSkeletalMeshes[0])));
+	osAthenaPlayerPawn->Mesh->SetSkeletalMesh(MasterMesh, true);
+
+	//osAthenaPlayerPawn->Mesh->SetAnimInstanceClass(UFortnite_M_Avg_Player_AnimBlueprint_C::StaticClass());
+
 	for (auto i = 0; i < HeroCharParts.Num(); i++) AthenaPlayerState->CharacterParts[i] = HeroCharParts[i];
+
 
 	PlayerState->OnRep_CharacterParts();
 
@@ -97,7 +107,7 @@ World::World()
 	FortPlayerController->ServerReadyToStartMatch();
 
 	auto GameMode = reinterpret_cast<AGameMode*>(GEngine->GameViewport->World->AuthorityGameMode);
-	
+
 	GameMode->StartMatch();
 
 	/*auto MovieSceneSequencePlayer = UMovieSceneSequencePlayer::StaticClass()->CreateDefaultObject<UMovieSceneSequencePlayer>();
