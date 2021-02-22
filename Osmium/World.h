@@ -6,8 +6,6 @@ namespace osmium
 	class World
 	{
 	public:
-		BOOL Status;
-
 		bool bHasJumped;
 		bool bIsSprinting;
 
@@ -18,6 +16,6 @@ namespace osmium
 		World();
 		~World();
 
-		UObject* FindActor(UClass* pClass);
+		static UObject* FindActor(UClass* pClass);
 	};
 }

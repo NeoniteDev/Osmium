@@ -4,6 +4,8 @@
 
 using namespace osmium;
 
+inline bool isReady;
+
 void GameThread()
 {
 	while (true)
@@ -50,20 +52,21 @@ void GameThread()
 /// <summary>
 /// Construct Osmium.
 /// </summary>
-World::World() : Status(EWorldStatus::Constructing)
+World::World()
 {
 	osPlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
 
 	Native::InitCheatManager();
 
 	osPlayerController->CheatManager->God();
+
 	osPlayerController->CheatManager->DestroyAll(AFortHLODSMActor::StaticClass());
 
 	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
-	osFortPlayerPawn = static_cast<AFortPlayerPawn*>(FindActor(AFortPlayerPawn::StaticClass()));
-	osPlayerController->Possess(osFortPlayerPawn);
+	
+	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(FindActor(AFortPlayerPawnAthena::StaticClass()));
 
-	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(osFortPlayerPawn);
+	osPlayerController->Possess(osAthenaPlayerPawn);
 
 	auto Location = osAthenaPlayerPawn->K2_GetActorLocation();
 	Location.Z = Location.Z + 4000;
@@ -72,29 +75,30 @@ World::World() : Status(EWorldStatus::Constructing)
 	Rotation.Pitch = 0;
 	Rotation.Yaw = 0;
 	Rotation.Roll = 0;
-
+	
 	osAthenaPlayerPawn->K2_SetActorLocationAndRotation(Location, Rotation, false, true, new FHitResult());
 
 	auto AthenaPlayerState = reinterpret_cast<AFortPlayerStateAthena*>(osAthenaPlayerPawn->PlayerState);
+
 	auto PlayerState = reinterpret_cast<AFortPlayerState*>(AthenaPlayerState);
 
-	auto AthenaPlayerController = reinterpret_cast<AFortPlayerControllerAthena*>(osPlayerController);
+	const auto AthenaPlayerController = reinterpret_cast<AFortPlayerControllerAthena*>(osPlayerController);
+
 	auto FortPlayerController = reinterpret_cast<AFortPlayerController*>(osPlayerController);
 
 	auto HeroCharParts = AthenaPlayerController->StrongMyHero->CharacterParts;
+
 	for (auto i = 0; i < HeroCharParts.Num(); i++) AthenaPlayerState->CharacterParts[i] = HeroCharParts[i];
 
 	PlayerState->OnRep_CharacterParts();
-	PlayerState->OnRep_ShowHeroBackpack();
 
 	osAthenaPlayerPawn->OnRep_CustomizationLoadout();
 
 	FortPlayerController->ServerReadyToStartMatch();
 
 	auto GameMode = reinterpret_cast<AGameMode*>(GEngine->GameViewport->World->AuthorityGameMode);
+	
 	GameMode->StartMatch();
-
-
 
 	/*auto MovieSceneSequencePlayer = UMovieSceneSequencePlayer::StaticClass()->CreateDefaultObject<UMovieSceneSequencePlayer>();
 	auto SequenceToPlay = UObject::FindObject<void*>("LevelSequencePlayer thethinghere");
@@ -108,7 +112,7 @@ World::World() : Status(EWorldStatus::Constructing)
 }
 
 
-UObject* osmium::World::FindActor(UClass* pClass)
+auto World::FindActor(UClass* pClass) -> UObject*
 {
 	TArray<AActor*> Actors;
 

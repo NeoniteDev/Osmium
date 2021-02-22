@@ -9,7 +9,7 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-        <ProjectConfiguration Include="Debug">
+    <ProjectConfiguration Include="Debug">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
@@ -111,10 +111,14 @@
 xcopy "$(TargetPath)" "$(SolutionDir)Build\" /F /I /R /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="curl.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="hook.cpp" />
     <ClCompile Include="SDK\FN_Basic.cpp" />
     <ClCompile Include="SDK\FN_CoreUObject_functions.cpp" />
     <ClCompile Include="SDK\FN_Encryption.cpp" />
@@ -125,16 +129,27 @@ xcopy "$(TargetPath)" "$(SolutionDir)Build\" /F /I /R /Y</Command>
   <ItemGroup>
     <ClInclude Include="curl.h" />
     <ClInclude Include="constants.h" />
+    <ClInclude Include="processevent.h" />
     <ClInclude Include="enums.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="globals.h" />
-    <ClInclude Include="hook.h" />
+    <ClInclude Include="veh.h" />
     <ClInclude Include="SDK.hpp" />
     <ClInclude Include="native.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\Detours.4.0.1\build\native\Detours.targets" Condition="Exists('..\packages\Detours.4.0.1\build\native\Detours.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Detours.4.0.1\build\native\Detours.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Detours.4.0.1\build\native\Detours.targets'))" />
+  </Target>
 </Project>

@@ -20,9 +20,6 @@
     <ClCompile Include="curl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="hook.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SDK\FN_Basic.cpp">
       <Filter>SDK</Filter>
     </ClCompile>
@@ -49,9 +46,6 @@
     <ClInclude Include="curl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="hook.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -73,5 +67,14 @@
     <ClInclude Include="native.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="veh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="processevent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

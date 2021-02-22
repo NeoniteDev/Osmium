@@ -1,5 +1,6 @@
 #pragma once
 #include "framework.h"
+#include "processevent.h"
 
 using namespace osmium;
 
@@ -26,7 +27,7 @@ namespace Native
 	{
 		// Get the PlayerController from the GameInstances' LocalPlayers array.
 		auto PlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
-		
+
 		// Construct a CheatManager.
 		UObject* CheatManager = StaticConstructObject(
 			UCheatManager::StaticClass(),
@@ -73,12 +74,18 @@ namespace Native
 	/// Initializes Osmium.
 	/// </summary>
 	inline void Init()
-	{		
-		GEngine = *reinterpret_cast<UEngine**>(reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr)) + 0x4FC15D8);
-		GWorld = *reinterpret_cast<UWorld**>(reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr)) + 0x4FC3160);
+	{
+		const auto ModuleBase = Util::BaseAddress();
 
-		StaticConstructObject = decltype(StaticConstructObject)(reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr)) + 0x15B5410);
+		GEngine = *reinterpret_cast<UEngine**>(ModuleBase + UENGINE_OFFSET);
+		GWorld = *reinterpret_cast<UWorld**>(ModuleBase + UWORLD_OFFSET);
 
-		UnlockConsole();
+		StaticConstructObject = decltype(StaticConstructObject)(ModuleBase + SCOI_OFFSET);
+
+		if (InitPEH())
+		{
+			osWorldStatus = InLobby;
+			UnlockConsole();
+		}
 	}
 }

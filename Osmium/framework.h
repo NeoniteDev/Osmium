@@ -15,6 +15,7 @@
 #include <Psapi.h>
 #include <stdlib.h>
 #include <Windows.h>
+#include <detours.h>
 
 #include "util.h"
 #include "constants.h"
@@ -23,8 +24,3 @@
 #include "SDK.hpp"
 
 using namespace SDK;
-
-#pragma comment(lib, "user32.lib")
-#pragma comment(lib, "winhttp.lib")
-#pragma comment(lib, "advapi32.lib")
-#include "minhook/MinHook.h"
