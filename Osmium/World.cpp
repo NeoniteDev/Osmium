@@ -14,12 +14,8 @@ void GameThread()
 		if (!osWorld->bIsSprinting)
 		{
 			osWorld->bIsSprinting = true;
-			if (osWorld->osAthenaPlayerPawn->CurrentWeapon && !osWorld->osAthenaPlayerPawn->CurrentWeapon->IsReloading() && !osWorld->osAthenaPlayerPawn->CurrentWeapon->bIsTargeting) osWorld
-			                                                                                                                                                                           ->
-			                                                                                                                                                                           osAthenaPlayerPawn
-			                                                                                                                                                                           ->
-			                                                                                                                                                                           CurrentMovementStyle
-			= wantsToSprint ? EFortMovementStyle::Sprinting : EFortMovementStyle::Running;
+			if (osWorld->osAthenaPlayerPawn->CurrentWeapon && !osWorld->osAthenaPlayerPawn->CurrentWeapon->IsReloading() && !osWorld->osAthenaPlayerPawn->CurrentWeapon->bIsTargeting) 
+				osWorld->osAthenaPlayerPawn->CurrentMovementStyle = wantsToSprint ? EFortMovementStyle::Sprinting : EFortMovementStyle::Running;
 		}
 		else osWorld->bIsSprinting = false;
 
@@ -34,13 +30,16 @@ void GameThread()
 				{
 					if (osWorld->osAthenaPlayerPawn->IsSkydiving() && !osWorld->osAthenaPlayerPawn->IsParachuteForcedOpen())
 					{
-						if (!osWorld->osAthenaPlayerPawn->IsParachuteOpen()) osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 3);
+						if (!osWorld->osAthenaPlayerPawn->IsParachuteOpen()) 
+							osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 3);
 
-						if (osWorld->osAthenaPlayerPawn->IsParachuteOpen()) osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 4);
+						if (osWorld->osAthenaPlayerPawn->IsParachuteOpen()) 
+							osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 4);
 
 						osWorld->osAthenaPlayerPawn->OnRep_IsParachuteOpen(osWorld->osAthenaPlayerPawn->IsParachuteOpen());
 					}
-					else if (osWorld->osAthenaPlayerPawn->IsJumpProvidingForce()) osWorld->osAthenaPlayerPawn->Jump();
+					else if (osWorld->osAthenaPlayerPawn->IsJumpProvidingForce()) 
+						osWorld->osAthenaPlayerPawn->Jump();
 				}
 			}
 		}
@@ -98,7 +97,6 @@ World::World()
 	//osAthenaPlayerPawn->Mesh->SetAnimInstanceClass(UFortnite_M_Avg_Player_AnimBlueprint_C::StaticClass());
 
 	for (auto i = 0; i < HeroCharParts.Num(); i++) AthenaPlayerState->CharacterParts[i] = HeroCharParts[i];
-
 
 	PlayerState->OnRep_CharacterParts();
 
