@@ -12,8 +12,13 @@ void GameThread()
 		if (!osWorld->bIsSprinting)
 		{
 			osWorld->bIsSprinting = true;
-			if (osWorld->osAthenaPlayerPawn->CurrentWeapon && !osWorld->osAthenaPlayerPawn->CurrentWeapon->IsReloading() && !osWorld->osAthenaPlayerPawn->CurrentWeapon->bIsTargeting) 
-				osWorld->osAthenaPlayerPawn->CurrentMovementStyle = wantsToSprint ? EFortMovementStyle::Sprinting : EFortMovementStyle::Running;
+			if (osWorld->osAthenaPlayerPawn->CurrentWeapon && !osWorld->osAthenaPlayerPawn->CurrentWeapon->IsReloading() && !osWorld->osAthenaPlayerPawn->CurrentWeapon->bIsTargeting)
+				osWorld
+				->
+				osAthenaPlayerPawn
+				->
+				CurrentMovementStyle
+				= wantsToSprint ? EFortMovementStyle::Sprinting : EFortMovementStyle::Running;
 		}
 		else osWorld->bIsSprinting = false;
 
@@ -28,16 +33,13 @@ void GameThread()
 				{
 					if (osWorld->osAthenaPlayerPawn->IsSkydiving() && !osWorld->osAthenaPlayerPawn->IsParachuteForcedOpen())
 					{
-						if (!osWorld->osAthenaPlayerPawn->IsParachuteOpen()) 
-							osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 3);
+						if (!osWorld->osAthenaPlayerPawn->IsParachuteOpen()) osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 3);
 
-						if (osWorld->osAthenaPlayerPawn->IsParachuteOpen()) 
-							osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 4);
+						if (osWorld->osAthenaPlayerPawn->IsParachuteOpen()) osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 4);
 
 						osWorld->osAthenaPlayerPawn->OnRep_IsParachuteOpen(osWorld->osAthenaPlayerPawn->IsParachuteOpen());
 					}
-					else if (osWorld->osAthenaPlayerPawn->IsJumpProvidingForce()) 
-						osWorld->osAthenaPlayerPawn->Jump();
+					else if (osWorld->osAthenaPlayerPawn->IsJumpProvidingForce()) osWorld->osAthenaPlayerPawn->Jump();
 				}
 			}
 		}
@@ -86,13 +88,11 @@ World::World()
 
 	auto HeroCharParts = AthenaPlayerController->StrongMyHero->CharacterParts;
 
-	/*auto KismetSysLib_C = UKismetSystemLibrary::StaticClass();
-	auto KismetSysLib = static_cast<UKismetSystemLibrary*>(KismetSysLib_C->CreateDefaultObject());
+	auto Skeleton = UObject::FindObject<USkeletalMesh>("SkeletalMesh SK_M_MALE_Base_Skeleton.SK_M_MALE_Base_Skeleton");
 
-	auto MasterMesh = reinterpret_cast<USkeletalMesh*>(KismetSysLib->STATIC_Conv_SoftObjectReferenceToObject(reinterpret_cast<void*>(HeroCharParts[0]->MasterSkeletalMeshes[0])));
-	osAthenaPlayerPawn->Mesh->SetSkeletalMesh(MasterMesh, true);
+	if (!Skeleton) Skeleton = UObject::FindObject<USkeletalMesh>("SkeletalMesh SK_M_Female_Base_Skeleton.SK_M_Female_Base_Skeleton");
 
-	osAthenaPlayerPawn->Mesh->SetAnimInstanceClass(UFortnite_M_Avg_Player_AnimBlueprint_C::StaticClass());*/
+	if (Skeleton) osAthenaPlayerPawn->Mesh->SetSkeletalMesh(Skeleton, true);
 
 	for (auto i = 0; i < HeroCharParts.Num(); i++) AthenaPlayerState->CharacterParts[i] = HeroCharParts[i];
 
@@ -106,12 +106,8 @@ World::World()
 
 	GameMode->StartMatch();
 
-	/*auto MovieSceneSequencePlayer = UMovieSceneSequencePlayer::StaticClass()->CreateDefaultObject<UMovieSceneSequencePlayer>();
-	auto SequenceToPlay = UObject::FindObject<void*>("LevelSequencePlayer thethinghere");
 
-	MovieSceneSequencePlayer->ProcessEvent(nullptr, SequenceToPlay);
-
-
+	/*
 	CreateThread(nullptr, NULL, reinterpret_cast<LPTHREAD_START_ROUTINE>(&GameThread), nullptr, NULL, nullptr);*/
 
 	return;

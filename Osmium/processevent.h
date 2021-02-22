@@ -29,10 +29,37 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 		PlayerController->SwitchLevel(Strings::Maps::AthenaTerrain);
 		goto out;
 	}
+
 	if (nFunc == "ReadyToStartMatch" && osWorldStatus == InLobby)
 	{
 		osWorld = new osmium::World();
 		osWorldStatus = EWorldStatus::Constructing;
+	}
+
+	if (nFunc == "CheatScript")
+	{
+		auto EventPlayer = UObject::FindObject<ULevelSequencePlayer>(
+			"LevelSequencePlayer Athena_Gameplay_Geode.Athena_Gameplay_Geode.PersistentLevel.LevelSequence_LaunchRocket.AnimationPlayer");
+		EventPlayer->Play();
+	}
+
+	if (nFunc == "EnableCheats")
+	{
+		std::ofstream log("gobjects.log");
+
+		for (int i = 0; i < UObject::GetGlobalObjects().Num(); ++i)
+		{
+			auto object = UObject::GetGlobalObjects().GetByIndex(i);
+
+			if (object == nullptr)
+			{
+				continue;
+			}
+
+			std::string ObjectFullName = object->GetFullName();
+
+			log << ObjectFullName + "\n";
+		}
 	}
 
 

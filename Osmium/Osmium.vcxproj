@@ -124,6 +124,8 @@ xcopy "$(TargetPath)" "$(SolutionDir)Build\" /F /I /R /Y</Command>
     <ClCompile Include="SDK\FN_Encryption.cpp" />
     <ClCompile Include="SDK\FN_Engine_functions.cpp" />
     <ClCompile Include="SDK\FN_FortniteGame_functions.cpp" />
+    <ClCompile Include="SDK\FN_LevelSequence_functions.cpp" />
+    <ClCompile Include="SDK\FN_MovieScene_functions.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
