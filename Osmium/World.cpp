@@ -9,13 +9,11 @@ void GameThread()
 	while (true)
 	{
 		bool wantsToSprint = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController)->bWantsToSprint;
-		if (!osWorld->bIsSprinting)
+
+		if (osWorld->osAthenaPlayerPawn->CurrentWeapon && !osWorld->osAthenaPlayerPawn->CurrentWeapon->IsReloading() && !osWorld->osAthenaPlayerPawn->CurrentWeapon->bIsTargeting)
 		{
-			osWorld->bIsSprinting = true;
-			if (osWorld->osAthenaPlayerPawn->CurrentWeapon && !osWorld->osAthenaPlayerPawn->CurrentWeapon->IsReloading() && !osWorld->osAthenaPlayerPawn->CurrentWeapon->bIsTargeting)
-				osWorld ->osAthenaPlayerPawn->CurrentMovementStyle = wantsToSprint ? EFortMovementStyle::Sprinting : EFortMovementStyle::Running;
+			osWorld->osAthenaPlayerPawn->CurrentMovementStyle = wantsToSprint ? EFortMovementStyle::Sprinting : EFortMovementStyle::Running;
 		}
-		else osWorld->bIsSprinting = false;
 
 		if (GetAsyncKeyState(VK_SPACE))
 		{
@@ -26,18 +24,7 @@ void GameThread()
 				bool isInAircraft = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController)->IsInAircraft();
 				if (!isInAircraft)
 				{
-					if (osWorld->osAthenaPlayerPawn->IsSkydiving() && !osWorld->osAthenaPlayerPawn->IsParachuteForcedOpen())
-					{
-						if (!osWorld->osAthenaPlayerPawn->IsParachuteOpen()) 
-							osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 3);
-
-						if (osWorld->osAthenaPlayerPawn->IsParachuteOpen()) 
-							osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 4);
-
-						osWorld->osAthenaPlayerPawn->OnRep_IsParachuteOpen(osWorld->osAthenaPlayerPawn->IsParachuteOpen());
-					}
-					else if (osWorld->osAthenaPlayerPawn->IsJumpProvidingForce()) 
-						osWorld->osAthenaPlayerPawn->Jump();
+					if (osWorld->osAthenaPlayerPawn->IsJumpProvidingForce()) osWorld->osAthenaPlayerPawn->Jump();
 				}
 			}
 		}
@@ -55,8 +42,6 @@ World::World()
 	osPlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
 
 	Native::InitCheatManager();
-
-	osPlayerController->CheatManager->God();
 
 	osPlayerController->CheatManager->DestroyAll(AFortHLODSMActor::StaticClass());
 
@@ -76,7 +61,7 @@ World::World()
 	UE4_CONSOLE_LOG(L"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 	UE4_CONSOLE_LOG(L"Made with ♥ By @xkem0x, @DarkbladeEU, @NotMakks and @SizzyLeaks.\nPlease credit us for our hard work ♥.");
 
-	//CreateThread(nullptr, NULL, reinterpret_cast<LPTHREAD_START_ROUTINE>(&GameThread), nullptr, NULL, nullptr);
+	CreateThread(nullptr, NULL, reinterpret_cast<LPTHREAD_START_ROUTINE>(&GameThread), nullptr, NULL, nullptr);
 
 	return;
 }
@@ -90,7 +75,7 @@ auto World::FindActor(UClass* pClass) -> UObject*
 
 	if (Actors.Num() > 0)
 	{
-		AActor* pActor = Actors.operator[](0);
+		auto pActor = Actors.operator[](0);
 		if (pActor) return pActor;
 	}
 
@@ -99,11 +84,11 @@ auto World::FindActor(UClass* pClass) -> UObject*
 
 auto World::Spawn() -> void
 {
-	osPlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
-
 	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
 	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(FindActor(AFortPlayerPawnAthena::StaticClass()));
 	osPlayerController->Possess(osAthenaPlayerPawn);
+
+	osPlayerController->CheatManager->God();
 
 	auto Location = osAthenaPlayerPawn->K2_GetActorLocation();
 	Location.Z = Location.Z + 4000;
@@ -129,14 +114,35 @@ auto World::Spawn() -> void
 	if (AthenaPlayerState->CharacterGender == EFortCustomGender::Female) osAthenaPlayerPawn->Mesh->SetSkeletalMesh(FemaleSkeleton, true);
 	else osAthenaPlayerPawn->Mesh->SetSkeletalMesh(MaleSkeleton, true);
 
+	auto Pickaxe = AthenaPlayerController->CustomizationLoadout.Pickaxe->CreateTemporaryItemInstanceBP(1, 3);
+	auto Weapon = Pickaxe->GetSchematicCraftingResultOrCraftedWeaponBP();
+
+	if (!Weapon) Weapon = UObject::FindObject<UFortWeaponMeleeItemDefinition>("FortWeaponMeleeItemDefinition WID_Harvest_Pickaxe_HolidayCandyCane_Athena.WID_Harvest_Pickaxe_HolidayCandyCane_Athena");
+	else MessageBoxA(nullptr, Weapon->GetFullName().c_str(), "test", MB_OK);
+
+	FGuid guid;
+	guid.A = rand();
+	guid.B = rand();
+	guid.C = rand();
+	guid.D = rand();
+
+	osAthenaPlayerPawn->EquipWeaponDefinition(Weapon, guid);
+
 	PlayerState->OnRep_CharacterParts();
 	osAthenaPlayerPawn->OnRep_CustomizationLoadout();
 }
 
-auto World::Despawn() -> void
+auto World::Respawn() -> void
 {
-	if (osAthenaPlayerPawn)
-		osAthenaPlayerPawn->K2_DestroyActor();
+	Despawn();
+	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
+	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(FindActor(AFortPlayerPawnAthena::StaticClass()));
+	osPlayerController->Possess(osAthenaPlayerPawn);
+}
+
+auto World::Despawn() const -> void
+{
+	if (osAthenaPlayerPawn) osAthenaPlayerPawn->K2_DestroyActor();
 }
 
 /// <summary>

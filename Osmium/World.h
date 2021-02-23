@@ -19,6 +19,7 @@ namespace osmium
 		static UObject* FindActor(UClass* pClass);
 
 		void Spawn();
-		void Despawn();
+		auto Respawn() -> void;
+		void Despawn() const;
 	};
 }

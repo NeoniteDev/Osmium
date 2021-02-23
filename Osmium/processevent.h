@@ -6,7 +6,9 @@
 
 
 //Used to log processevent
+#ifndef _PROD
 #define LOGGING
+#endif
 
 inline void* (*ProcessEvent)(void* pUObject, void* pUFunction, void* pParams);
 
@@ -39,11 +41,9 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 		osWorldStatus = Constructing;
 	}
 
-	if (nFunc == "ServerAttemptAircraftJump" || nFunc == "OnAircraftExitedDropZone")
+	if (nFunc == "ServerAttemptAircraftJump")
 	{
-		// Add check to see if pawn is in aircraft (globals)
-		osWorld->Despawn();
-		osWorld->Spawn();
+		osWorld->Respawn();
 	}
 
 	if (nFunc == "Event AcceptOption")
@@ -53,6 +53,11 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 		auto Montage = Dance->GetAnimationHardReference(EFortCustomBodyType::All, EFortCustomGender::Both);
 		auto AnimInstance = static_cast<AFortPlayerPawnAthena*>(osmium::World::FindActor(AFortPlayerPawnAthena::StaticClass()))->Mesh->GetAnimInstance();
 		AnimInstance->Montage_Play(Montage, 1, EMontagePlayReturnType::Duration, 0, true);
+	}
+
+	if(nObj == "PlayerPawn_Athena_C_2" && nFunc == "OnLanded")
+	{
+		//osWorld->Respawn();
 	}
 
 	if (nFunc == "CheatScript")
@@ -91,7 +96,34 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 
 out:
 #ifdef LOGGING
-	printf("[Object]: %s [Function]: %s\n", nObj.c_str(), nFunc.c_str());
+	if (nFunc != "EvaluateGraphExposedInputs" &&
+		nFunc != "ReceiveTick" &&
+		nFunc != "Tick" &&
+		nFunc != "OnSubmixEnvelope" &&
+		nFunc != "OnSubmixSpectralAnalysis" &&
+		nFunc != "OnMouse" &&
+		nFunc != "GetSubtitleVisibility" &&
+		nFunc != "Pulse" &&
+		nFunc != "BlueprintUpdateAnimation" &&
+		nFunc != "BlueprintPostEvaluateAnimation" &&
+		nFunc != "BlueprintModifyCamera" &&
+		nFunc != "BlueprintModifyPostProcess" &&
+		nFunc != "Loop Animation Curve" &&
+		nFunc != "GetValue" &&
+		nFunc != "OnSignificantTick" &&
+		nFunc != "ReceiveDrawHUD" &&
+		nFunc != "Chime Visual" &&
+		nFunc != "UpdateTime" &&
+		nFunc != "GetMutatorByClass" &&
+		nFunc != "OnUpdateDirectionalLightForTimeOfDay" &&
+		nFunc != "UpdatePreviousPositionAndVelocity" &&
+		nFunc != "IsCachedIsProjectileWeapon" &&
+		nFunc != "LockOn" &&
+		nFunc != "GetAbilityTargetingLevel" &&
+		nFunc != "ReadyToEndMatch")
+	{
+		printf("[Object]: %s [Function]: %s\n", nObj.c_str(), nFunc.c_str());
+	}
 #endif
 
 	return ProcessEvent(pObj, pFunc, pParams);
