@@ -82,16 +82,13 @@ World::World()
 	auto HeroCharParts = AthenaPlayerController->StrongMyHero->CharacterParts;
 
 	for (auto i = 0; i < HeroCharParts.Num(); i++) AthenaPlayerState->CharacterParts[i] = HeroCharParts[i];
-
-	auto FortWorker = static_cast<UFortWorker*>(AthenaPlayerController->StrongMyHero);
-	auto Gender = static_cast<EFortCustomGender>(FortWorker->Gender);
-
+	
 	auto MaleSkeleton = UObject::FindObject<USkeletalMesh>("SkeletalMesh SK_M_MALE_Base_Skeleton.SK_M_MALE_Base_Skeleton");
 	auto FemaleSkeleton = UObject::FindObject<USkeletalMesh>("SkeletalMesh SK_M_Female_Base_Skeleton.SK_M_Female_Base_Skeleton");
 
-	if (Gender == EFortCustomGender::Female) osAthenaPlayerPawn->Mesh->SetSkeletalMesh(FemaleSkeleton, true);
+	if (AthenaPlayerState->CharacterGender == EFortCustomGender::Female) osAthenaPlayerPawn->Mesh->SetSkeletalMesh(FemaleSkeleton, true);
 	else osAthenaPlayerPawn->Mesh->SetSkeletalMesh(MaleSkeleton, true);
-
+	
 	PlayerState->OnRep_CharacterParts();
 	osAthenaPlayerPawn->OnRep_CustomizationLoadout();
 
