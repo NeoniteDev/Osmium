@@ -114,13 +114,20 @@ auto World::Spawn() -> void
 	auto BackpackCharPart = Backpack->GetCharacterParts()[0];
 	CharPartsArray.push_back(BackpackCharPart);
 
-	for (auto i = 0; i < CharPartsArray.size(); i++) AthenaPlayerState->CharacterParts[i] = CharPartsArray[i];
+	for (auto i = 0; i < CharPartsArray.size(); i++)
+	{
+		if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHeadData::StaticClass()))
+			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Head, CharPartsArray[i]);
 
-	auto MaleSkeleton = UObject::FindObject<USkeletalMesh>("SkeletalMesh SK_M_MALE_Base_Skeleton.SK_M_MALE_Base_Skeleton");
-	auto FemaleSkeleton = UObject::FindObject<USkeletalMesh>("SkeletalMesh SK_M_Female_Base_Skeleton.SK_M_Female_Base_Skeleton");
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBodyPartData::StaticClass()))
+			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Body, CharPartsArray[i]);
 
-	if (AthenaPlayerState->CharacterGender == EFortCustomGender::Female) osAthenaPlayerPawn->Mesh->SetSkeletalMesh(FemaleSkeleton, true);
-	else osAthenaPlayerPawn->Mesh->SetSkeletalMesh(MaleSkeleton, true);
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHatData::StaticClass()))
+			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Hat, CharPartsArray[i]);
+
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBackpackData::StaticClass()))
+			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Backpack, CharPartsArray[i]);
+	}
 
 	auto Pickaxe = AthenaPlayerController->CustomizationLoadout.Pickaxe->CreateTemporaryItemInstanceBP(1, 3);
 	auto Weapon = Pickaxe->GetSchematicCraftingResultOrCraftedWeaponBP();
