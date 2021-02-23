@@ -42,7 +42,8 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 	if (nFunc == "ServerAttemptAircraftJump" || nFunc == "AircraftExitedDropZone")
 	{
 		// Add check to see if pawn is in aircraft (globals)
-		osWorld->Respawn();
+		osWorld->Despawn();
+		osWorld->Spawn();
 	}
 
 	if (nFunc == "Event AcceptOption")

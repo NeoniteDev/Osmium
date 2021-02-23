@@ -60,38 +60,9 @@ World::World()
 
 	osPlayerController->CheatManager->DestroyAll(AFortHLODSMActor::StaticClass());
 
-	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
-	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(FindActor(AFortPlayerPawnAthena::StaticClass()));
-	osPlayerController->Possess(osAthenaPlayerPawn);
+	Spawn();
 
-	auto Location = osAthenaPlayerPawn->K2_GetActorLocation();
-	Location.Z = Location.Z + 4000;
-
-	FRotator Rotation;
-	Rotation.Pitch = 0;
-	Rotation.Yaw = 0;
-	Rotation.Roll = 0;
-
-	osAthenaPlayerPawn->K2_SetActorLocationAndRotation(Location, Rotation, false, true, new FHitResult());
-
-	auto AthenaPlayerController = reinterpret_cast<AFortPlayerControllerAthena*>(osPlayerController);
 	auto FortPlayerController = reinterpret_cast<AFortPlayerController*>(osPlayerController);
-	auto AthenaPlayerState = reinterpret_cast<AFortPlayerStateAthena*>(osAthenaPlayerPawn->PlayerState);
-	auto PlayerState = reinterpret_cast<AFortPlayerState*>(AthenaPlayerState);
-
-	auto HeroCharParts = AthenaPlayerController->StrongMyHero->CharacterParts;
-
-	for (auto i = 0; i < HeroCharParts.Num(); i++) AthenaPlayerState->CharacterParts[i] = HeroCharParts[i];
-	
-	auto MaleSkeleton = UObject::FindObject<USkeletalMesh>("SkeletalMesh SK_M_MALE_Base_Skeleton.SK_M_MALE_Base_Skeleton");
-	auto FemaleSkeleton = UObject::FindObject<USkeletalMesh>("SkeletalMesh SK_M_Female_Base_Skeleton.SK_M_Female_Base_Skeleton");
-
-	if (AthenaPlayerState->CharacterGender == EFortCustomGender::Female) osAthenaPlayerPawn->Mesh->SetSkeletalMesh(FemaleSkeleton, true);
-	else osAthenaPlayerPawn->Mesh->SetSkeletalMesh(MaleSkeleton, true);
-	
-	PlayerState->OnRep_CharacterParts();
-	osAthenaPlayerPawn->OnRep_CustomizationLoadout();
-
 
 	auto Playlist = UObject::FindObject<UFortPlaylistAthena>("FortPlaylistAthena Playlist_DefaultSolo.Playlist_DefaultSolo");
 	auto AthenaGameState = static_cast<AFortGameStateAthena*>(GEngine->GameViewport->World->GameState);
@@ -110,7 +81,6 @@ World::World()
 	return;
 }
 
-
 auto World::FindActor(UClass* pClass) -> UObject*
 {
 	TArray<AActor*> Actors;
@@ -127,7 +97,7 @@ auto World::FindActor(UClass* pClass) -> UObject*
 	return nullptr;
 }
 
-auto World::Respawn() -> void
+auto World::Spawn() -> void
 {
 	osPlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
 
@@ -161,6 +131,12 @@ auto World::Respawn() -> void
 
 	PlayerState->OnRep_CharacterParts();
 	osAthenaPlayerPawn->OnRep_CustomizationLoadout();
+}
+
+auto World::Despawn() -> void
+{
+	if (osAthenaPlayerPawn)
+		osAthenaPlayerPawn->K2_DestroyActor();
 }
 
 /// <summary>
