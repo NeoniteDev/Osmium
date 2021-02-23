@@ -119,15 +119,37 @@ auto World::Spawn() -> void
 	auto AthenaPlayerState = reinterpret_cast<AFortPlayerStateAthena*>(osAthenaPlayerPawn->PlayerState);
 	auto PlayerState = reinterpret_cast<AFortPlayerState*>(AthenaPlayerState);
 
+	std::vector<UCustomCharacterPart*> CharPartsArray;
+
 	auto HeroCharParts = AthenaPlayerController->StrongMyHero->CharacterParts;
 
-	for (auto i = 0; i < HeroCharParts.Num(); i++) AthenaPlayerState->CharacterParts[i] = HeroCharParts[i];
+	for (auto i = 0; i < HeroCharParts.Num(); i++) CharPartsArray.push_back(HeroCharParts[i]);
+
+	auto Backpack = AthenaPlayerController->CustomizationLoadout.Backpack;
+	auto BackpackCharPart = Backpack->GetCharacterParts()[0];
+	CharPartsArray.push_back(BackpackCharPart);
+
+	for (auto i = 0; i < CharPartsArray.size(); i++) AthenaPlayerState->CharacterParts[i] = CharPartsArray[i];
 
 	auto MaleSkeleton = UObject::FindObject<USkeletalMesh>("SkeletalMesh SK_M_MALE_Base_Skeleton.SK_M_MALE_Base_Skeleton");
 	auto FemaleSkeleton = UObject::FindObject<USkeletalMesh>("SkeletalMesh SK_M_Female_Base_Skeleton.SK_M_Female_Base_Skeleton");
 
 	if (AthenaPlayerState->CharacterGender == EFortCustomGender::Female) osAthenaPlayerPawn->Mesh->SetSkeletalMesh(FemaleSkeleton, true);
 	else osAthenaPlayerPawn->Mesh->SetSkeletalMesh(MaleSkeleton, true);
+
+	auto Pickaxe = AthenaPlayerController->CustomizationLoadout.Pickaxe->CreateTemporaryItemInstanceBP(1, 1);
+	auto Weapon = Pickaxe->GetSchematicCraftingResultOrCraftedWeaponBP();
+
+	if (!Weapon) Weapon = UObject::FindObject<UFortWeaponMeleeItemDefinition>("FortWeaponMeleeItemDefinition WID_Harvest_Pickaxe_HolidayCandyCane_Athena.WID_Harvest_Pickaxe_HolidayCandyCane_Athena");
+	else MessageBoxA(nullptr, Weapon->GetFullName().c_str(), "test", MB_OK);
+
+	FGuid guid;
+	guid.A = rand();
+	guid.B = rand();
+	guid.C = rand();
+	guid.D = rand();
+
+	osAthenaPlayerPawn->EquipWeaponDefinition(Weapon, guid);
 
 	PlayerState->OnRep_CharacterParts();
 	osAthenaPlayerPawn->OnRep_CustomizationLoadout();

@@ -41,9 +41,24 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 
 	if (nFunc == "ServerAttemptAircraftJump" || nFunc == "OnAircraftExitedDropZone")
 	{
-		// Add check to see if pawn is in aircraft (globals)
-		osWorld->Despawn();
-		osWorld->Spawn();
+		auto PlayerController = static_cast<AFortPlayerControllerAthena*>(GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController);
+
+		if (PlayerController->IsInAircraft())
+		{
+			osWorld->Despawn();
+			osWorld->Spawn();
+
+			auto Pawn = static_cast<AFortPlayerPawnAthena*>(osmium::World::FindActor(AFortPlayerPawnAthena::StaticClass()));
+			if (Pawn)
+			{
+				auto PlayerState = static_cast<AFortPlayerState*>(Pawn->PlayerState);
+
+				if (PlayerState)
+				{
+					MessageBoxA(nullptr, "PlayerState is valid.", "Osmium", MB_OK);
+				}
+			}
+		}				
 	}
 
 	if (nFunc == "Event AcceptOption")
