@@ -4635,16 +4635,16 @@ public:
 	unsigned char                                      UnknownData02[0x28];                                      // 0x07A8(0x0028) UNKNOWN PROPERTY: SoftObjectProperty FortniteGame.CustomCharacterPart.DefaultMontageLookupTable
 	unsigned char                                      UnknownData03[0x28];                                      // 0x07D0(0x0028) UNKNOWN PROPERTY: SoftObjectProperty FortniteGame.CustomCharacterPart.OverrideMontageLookupTable
 	unsigned char                                      UnknownData04[0x28];                                      // 0x07F8(0x0028) UNKNOWN PROPERTY: SoftObjectProperty FortniteGame.CustomCharacterPart.SkeletalMesh
-	unsigned char                                      MasterSkeletalMeshes[0x10];                                // 0x0820(0x0010) UNKNOWN PROPERTY: ArrayProperty FortniteGame.CustomCharacterPart.MasterSkeletalMeshes
+	unsigned char                                      UnknownData05[0x10];                                		 // 0x0820(0x0010) UNKNOWN PROPERTY: ArrayProperty FortniteGame.CustomCharacterPart.MasterSkeletalMeshes
 	bool                                               bSinglePieceMesh;                                         // 0x0830(0x0001) (Edit, ZeroConstructor, IsPlainOldData)
 	bool                                               bSupportsColorSwatches;                                   // 0x0831(0x0001) (Edit, ZeroConstructor, IsPlainOldData)
-	unsigned char                                      UnknownData06[0x6];                                       // 0x0832(0x0006) MISSED OFFSET
+	unsigned char					                   UnknownData06[0x06];										 // 0x0832(0x0006) MISSED OFFSET
 	TArray<struct FCustomPartMaterialOverrideData>     MaterialOverrides;                                        // 0x0838(0x0010) (Edit, ZeroConstructor)
 	TArray<struct FCustomPartTextureParameter>         TextureParameters;                                        // 0x0848(0x0010) (Edit, ZeroConstructor)
 	TArray<struct FCustomPartScalarParameter>          ScalarParameters;                                         // 0x0858(0x0010) (Edit, ZeroConstructor)
 	TArray<struct FCustomPartVectorParameter>          VectorParameters;                                         // 0x0868(0x0010) (Edit, ZeroConstructor)
 	int                                                MaterialOverrideFlags;                                    // 0x0878(0x0004) (ZeroConstructor, IsPlainOldData)
-	unsigned char                                      UnknownData07[0x4];                                       // 0x087C(0x0004) MISSED OFFSET
+	unsigned char									   UnknownData07[0x04];                                      // 0x087C(0x0004) MISSED OFFSET
 
 	static UClass* StaticClass()
 	{

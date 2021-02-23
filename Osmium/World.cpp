@@ -104,9 +104,17 @@ auto World::Spawn() -> void
 	auto AthenaPlayerState = reinterpret_cast<AFortPlayerStateAthena*>(osAthenaPlayerPawn->PlayerState);
 	auto PlayerState = reinterpret_cast<AFortPlayerState*>(AthenaPlayerState);
 
+	std::vector<UCustomCharacterPart*> CharPartsArray;
+
 	auto HeroCharParts = AthenaPlayerController->StrongMyHero->CharacterParts;
 
-	for (auto i = 0; i < HeroCharParts.Num(); i++) AthenaPlayerState->CharacterParts[i] = HeroCharParts[i];
+	for (auto i = 0; i < HeroCharParts.Num(); i++) CharPartsArray.push_back(HeroCharParts[i]);
+
+	auto Backpack = AthenaPlayerController->CustomizationLoadout.Backpack;
+	auto BackpackCharPart = Backpack->GetCharacterParts()[0];
+	CharPartsArray.push_back(BackpackCharPart);
+
+	for (auto i = 0; i < CharPartsArray.size(); i++) AthenaPlayerState->CharacterParts[i] = CharPartsArray[i];
 
 	auto MaleSkeleton = UObject::FindObject<USkeletalMesh>("SkeletalMesh SK_M_MALE_Base_Skeleton.SK_M_MALE_Base_Skeleton");
 	auto FemaleSkeleton = UObject::FindObject<USkeletalMesh>("SkeletalMesh SK_M_Female_Base_Skeleton.SK_M_Female_Base_Skeleton");
