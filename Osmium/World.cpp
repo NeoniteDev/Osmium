@@ -92,12 +92,18 @@ World::World()
 	PlayerState->OnRep_CharacterParts();
 	osAthenaPlayerPawn->OnRep_CustomizationLoadout();
 
+
+	auto Playlist = UObject::FindObject<UFortPlaylistAthena>("FortPlaylistAthena Playlist_DefaultSolo.Playlist_DefaultSolo");
+	auto AthenaGameState = static_cast<AFortGameStateAthena*>(GEngine->GameViewport->World->GameState);
+	AthenaGameState->CurrentPlaylistData = Playlist;
+	AthenaGameState->OnRep_CurrentPlaylistData();
+
 	FortPlayerController->ServerReadyToStartMatch();
 	auto GameMode = reinterpret_cast<AGameMode*>(GEngine->GameViewport->World->AuthorityGameMode);
 	GameMode->StartMatch();
 
 	UE4_CONSOLE_LOG(L"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-	UE4_CONSOLE_LOG(L"Made with ♥ By @xkem0x, @DarkbladeEU, @NotMakks and @SizzyLeaks,\nPlease credit us for our hard work ♥.");
+	UE4_CONSOLE_LOG(L"Made with ♥ By @xkem0x, @DarkbladeEU, @NotMakks and @SizzyLeaks.\nPlease credit us for our hard work ♥.");
 
 	//CreateThread(nullptr, NULL, reinterpret_cast<LPTHREAD_START_ROUTINE>(&GameThread), nullptr, NULL, nullptr);
 
@@ -119,6 +125,42 @@ auto World::FindActor(UClass* pClass) -> UObject*
 	}
 
 	return nullptr;
+}
+
+auto World::Respawn() -> void
+{
+	osPlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
+
+	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
+	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(FindActor(AFortPlayerPawnAthena::StaticClass()));
+	osPlayerController->Possess(osAthenaPlayerPawn);
+
+	auto Location = osAthenaPlayerPawn->K2_GetActorLocation();
+	Location.Z = Location.Z + 4000;
+
+	FRotator Rotation;
+	Rotation.Pitch = 0;
+	Rotation.Yaw = 0;
+	Rotation.Roll = 0;
+
+	osAthenaPlayerPawn->K2_SetActorLocationAndRotation(Location, Rotation, false, true, new FHitResult());
+
+	auto AthenaPlayerController = reinterpret_cast<AFortPlayerControllerAthena*>(osPlayerController);
+	auto AthenaPlayerState = reinterpret_cast<AFortPlayerStateAthena*>(osAthenaPlayerPawn->PlayerState);
+	auto PlayerState = reinterpret_cast<AFortPlayerState*>(AthenaPlayerState);
+
+	auto HeroCharParts = AthenaPlayerController->StrongMyHero->CharacterParts;
+
+	for (auto i = 0; i < HeroCharParts.Num(); i++) AthenaPlayerState->CharacterParts[i] = HeroCharParts[i];
+
+	auto MaleSkeleton = UObject::FindObject<USkeletalMesh>("SkeletalMesh SK_M_MALE_Base_Skeleton.SK_M_MALE_Base_Skeleton");
+	auto FemaleSkeleton = UObject::FindObject<USkeletalMesh>("SkeletalMesh SK_M_Female_Base_Skeleton.SK_M_Female_Base_Skeleton");
+
+	if (AthenaPlayerState->CharacterGender == EFortCustomGender::Female) osAthenaPlayerPawn->Mesh->SetSkeletalMesh(FemaleSkeleton, true);
+	else osAthenaPlayerPawn->Mesh->SetSkeletalMesh(MaleSkeleton, true);
+
+	PlayerState->OnRep_CharacterParts();
+	osAthenaPlayerPawn->OnRep_CustomizationLoadout();
 }
 
 /// <summary>

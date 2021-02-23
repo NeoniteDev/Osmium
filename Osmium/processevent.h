@@ -27,6 +27,7 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 	if (gUrl.find("matchmakingservice") != std::string::npos)
 	{
 		gUrl.clear();
+
 		auto PlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
 		PlayerController->SwitchLevel(Strings::Maps::AthenaTerrain);
 		goto out;
@@ -35,7 +36,22 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 	if (nFunc == "ReadyToStartMatch" && osWorldStatus == InLobby)
 	{
 		osWorld = new osmium::World();
-		osWorldStatus = EWorldStatus::Constructing;
+		osWorldStatus = Constructing;
+	}
+
+	if (nFunc == "ServerAttemptAircraftJump" || nFunc == "AircraftExitedDropZone")
+	{
+		// Add check to see if pawn is in aircraft (globals)
+		osWorld->Respawn();
+	}
+
+	if (nFunc == "Event AcceptOption")
+	{
+		auto PlayerController = static_cast<AFortPlayerControllerAthena*>(GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController);
+		auto Dance = PlayerController->CustomizationLoadout.Dances[0];
+		auto Montage = Dance->GetAnimationHardReference(EFortCustomBodyType::All, EFortCustomGender::Both);
+		auto AnimInstance = static_cast<AFortPlayerPawnAthena*>(osmium::World::FindActor(AFortPlayerPawnAthena::StaticClass()))->Mesh->GetAnimInstance();
+		AnimInstance->Montage_Play(Montage, 1, EMontagePlayReturnType::Duration, 0, true);
 	}
 
 	if (nFunc == "CheatScript")
@@ -65,14 +81,6 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 				auto EventPlayer = UObject::FindObject<ULevelSequencePlayer>(
 					"LevelSequencePlayer Athena_Gameplay_Geode.Athena_Gameplay_Geode.PersistentLevel.LevelSequence_LaunchRocket.AnimationPlayer");
 				EventPlayer->Play();
-			}
-			else if(ScriptName == "test")
-			{
-				auto pc = static_cast<AFortPlayerControllerAthena*>(GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController);
-				auto dance = static_cast<UFortMontageItemDefinitionBase*>(pc->CustomizationLoadout.Dances[0]);
-				auto montage = dance->GetAnimationHardReference(EFortCustomBodyType::All, EFortCustomGender::Both);
-				auto animinstance = static_cast<AFortPlayerPawnAthena*>(osmium::World::FindActor(AFortPlayerPawnAthena::StaticClass()))->Mesh->GetAnimInstance();
-				animinstance->Montage_Play(montage, 1, EMontagePlayReturnType::Duration, 0, true);
 			}
 		}
 		goto out;
