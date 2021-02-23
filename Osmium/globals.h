@@ -17,3 +17,6 @@ inline UObject* (*StaticConstructObject)(
 	void* InstanceGraph,
 	bool bAssumeTemplateIsArchetype
 	);
+
+
+#define UE4_CONSOLE_LOG(s) reinterpret_cast<AGameMode*>(GEngine->GameViewport->World->AuthorityGameMode)->Say(FString(s));

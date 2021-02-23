@@ -1,4 +1,4 @@
-#include "World.h"
+﻿#include "World.h"
 #include "native.h"
 #include "globals.h"
 
@@ -98,6 +98,9 @@ World::World()
 	FortPlayerController->ServerReadyToStartMatch();
 	auto GameMode = reinterpret_cast<AGameMode*>(GEngine->GameViewport->World->AuthorityGameMode);
 	GameMode->StartMatch();
+
+	UE4_CONSOLE_LOG(L"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+	UE4_CONSOLE_LOG(L"Made with ♥ By @xkem0x, @DarkbladeEU, @NotMakks and @SizzyLeaks,\nPlease credit us for our hard work ♥.");
 
 	//CreateThread(nullptr, NULL, reinterpret_cast<LPTHREAD_START_ROUTINE>(&GameThread), nullptr, NULL, nullptr);
 

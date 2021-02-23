@@ -1,7 +1,9 @@
-#pragma once
+﻿#pragma once
 #include "framework.h"
 #include "globals.h"
 #include "curl.h"
+#include "World.h"
+
 
 //Used to log processevent
 #define LOGGING
@@ -38,28 +40,42 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 
 	if (nFunc == "CheatScript")
 	{
-		auto EventPlayer = UObject::FindObject<ULevelSequencePlayer>(
-			"LevelSequencePlayer Athena_Gameplay_Geode.Athena_Gameplay_Geode.PersistentLevel.LevelSequence_LaunchRocket.AnimationPlayer");
-		EventPlayer->Play();
-	}
+		const auto ScriptNameF = static_cast<UCheatManager_CheatScript_Params*>(pParams)->ScriptName;
 
-	if (nFunc == "EnableCheats")
-	{
-		std::ofstream log("gobjects.log");
-
-		for (int i = 0; i < UObject::GetGlobalObjects().Num(); ++i)
+		if (ScriptNameF.IsValid())
 		{
-			auto object = UObject::GetGlobalObjects().GetByIndex(i);
+			const auto ScriptName = ScriptNameF.ToString();
 
-			if (object == nullptr)
+			if (ScriptName == "dump")
 			{
-				continue;
+				std::ofstream log("gobjects.log");
+
+				for (int i = 0; i < UObject::GetGlobalObjects().Num(); ++i)
+				{
+					auto object = UObject::GetGlobalObjects().GetByIndex(i);
+
+					if (object == nullptr) continue;
+
+					log << object->GetFullName() + "\n";
+				}
 			}
-
-			std::string ObjectFullName = object->GetFullName();
-
-			log << ObjectFullName + "\n";
+			else if (ScriptName == "event")
+			{
+				UE4_CONSOLE_LOG(L"The event will start in some minutes!, Enjoy your stay ♥.")
+				auto EventPlayer = UObject::FindObject<ULevelSequencePlayer>(
+					"LevelSequencePlayer Athena_Gameplay_Geode.Athena_Gameplay_Geode.PersistentLevel.LevelSequence_LaunchRocket.AnimationPlayer");
+				EventPlayer->Play();
+			}
+			else if(ScriptName == "test")
+			{
+				auto pc = static_cast<AFortPlayerControllerAthena*>(GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController);
+				auto dance = static_cast<UFortMontageItemDefinitionBase*>(pc->CustomizationLoadout.Dances[0]);
+				auto montage = dance->GetAnimationHardReference(EFortCustomBodyType::All, EFortCustomGender::Both);
+				auto animinstance = static_cast<AFortPlayerPawnAthena*>(osmium::World::FindActor(AFortPlayerPawnAthena::StaticClass()))->Mesh->GetAnimInstance();
+				animinstance->Montage_Play(montage, 1, EMontagePlayReturnType::Duration, 0, true);
+			}
 		}
+		goto out;
 	}
 
 
