@@ -26,6 +26,55 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 	const auto nObj = pObj->GetName();
 	const auto nFunc = pFunc->GetName();
 
+	if (nFunc == "Tick" && osWorldStatus)
+	{
+		if (osWorldStatus != InLobby)
+		{
+			auto PlayerController = static_cast<AFortPlayerController*>(osWorld->osPlayerController);
+			if (PlayerController->bIsPlayerActivelyMoving)
+			{
+				auto AnimInstance = static_cast<AFortPlayerPawnAthena*>(osmium::World::FindActor(AFortPlayerPawnAthena::StaticClass()))->Mesh->GetAnimInstance();
+				auto CurrentMontage = AnimInstance->GetCurrentActiveMontage();
+
+				if (CurrentMontage)
+					if (CurrentMontage->GetName().starts_with("Emote_") || CurrentMontage->GetName().starts_with("Basketball_CMM"))
+						AnimInstance->Montage_Stop(1, CurrentMontage);
+			}
+
+			bool wantsToSprint = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController)->bHoldingSprint;
+
+			if (wantsToSprint)
+				osWorld->osAthenaPlayerPawn->CurrentMovementStyle = EFortMovementStyle::Sprinting;
+			else
+				osWorld->osAthenaPlayerPawn->CurrentMovementStyle = EFortMovementStyle::Running;
+
+			if (GetAsyncKeyState(VK_SPACE))
+			{
+				if (osWorld->bHasJumped == false)
+				{
+					osWorld->bHasJumped = true;
+
+					bool isInAircraft = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController)->IsInAircraft();
+					if (!isInAircraft)
+					{
+						if (!osWorld->osAthenaPlayerPawn->IsParachuteForcedOpen())
+						{
+							if (osWorld->osAthenaPlayerPawn->IsSkydiving() && !osWorld->osAthenaPlayerPawn->IsParachuteOpen())
+								osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 3);
+							else if (osWorld->osAthenaPlayerPawn->IsParachuteOpen())
+								osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 4);
+						}
+
+						osWorld->osAthenaPlayerPawn->OnRep_IsParachuteOpen(osWorld->osAthenaPlayerPawn->IsParachuteOpen()); 
+
+						osWorld->osAthenaPlayerPawn->Jump();
+					}
+				}
+			}
+			else osWorld->bHasJumped = false;
+		}
+	}
+
 	if (gUrl.find("matchmakingservice") != std::string::npos)
 	{
 		gUrl.clear();
@@ -41,23 +90,24 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 		osWorldStatus = Constructing;
 	}
 
-	if (nFunc == "ServerAttemptAircraftJump")
+	if (nFunc == "ServerAttemptAircraftJump" || nFunc == "OnAircraftExitedDropZone")
 	{
-		osWorld->Respawn();
+		auto AthenaPlayerController = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController);
+		if (AthenaPlayerController->IsInAircraft()) osWorld->Respawn();
 	}
 
 	if (nFunc == "Event AcceptOption")
 	{
-		auto PlayerController = static_cast<AFortPlayerControllerAthena*>(GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController);
+		auto PlayerController = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController);
 		auto Dance = PlayerController->CustomizationLoadout.Dances[0];
 		auto Montage = Dance->GetAnimationHardReference(EFortCustomBodyType::All, EFortCustomGender::Both);
 		auto AnimInstance = static_cast<AFortPlayerPawnAthena*>(osmium::World::FindActor(AFortPlayerPawnAthena::StaticClass()))->Mesh->GetAnimInstance();
 		AnimInstance->Montage_Play(Montage, 1, EMontagePlayReturnType::Duration, 0, true);
 	}
 
-	if(nObj == "PlayerPawn_Athena_C_2" && nFunc == "OnLanded")
+	if (nObj == "PlayerPawn_Athena_C_2" && nFunc == "OnLanded")
 	{
-		//osWorld->Respawn();
+		osWorld->Respawn();
 	}
 
 	if (nFunc == "CheatScript")
@@ -93,7 +143,7 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 		goto out;
 	}
 
-
+	if (nFunc == "ServerAttemptInteract") return nullptr;
 out:
 #ifdef LOGGING
 	if (nFunc != "EvaluateGraphExposedInputs" &&

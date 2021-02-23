@@ -6,8 +6,7 @@ namespace osmium
 	class World
 	{
 	public:
-		bool bHasJumped;
-		bool bIsSprinting;
+		bool bHasJumped = false;
 
 		AFortPlayerPawn* osFortPlayerPawn;
 		APlayerController* osPlayerController;

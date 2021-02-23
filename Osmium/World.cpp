@@ -4,36 +4,6 @@
 
 using namespace osmium;
 
-void GameThread()
-{
-	while (true)
-	{
-		bool wantsToSprint = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController)->bWantsToSprint;
-
-		if (osWorld->osAthenaPlayerPawn->CurrentWeapon && !osWorld->osAthenaPlayerPawn->CurrentWeapon->IsReloading() && !osWorld->osAthenaPlayerPawn->CurrentWeapon->bIsTargeting)
-		{
-			osWorld->osAthenaPlayerPawn->CurrentMovementStyle = wantsToSprint ? EFortMovementStyle::Sprinting : EFortMovementStyle::Running;
-		}
-
-		if (GetAsyncKeyState(VK_SPACE))
-		{
-			if (!osWorld->bHasJumped)
-			{
-				osWorld->bHasJumped = !osWorld->bHasJumped;
-
-				bool isInAircraft = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController)->IsInAircraft();
-				if (!isInAircraft)
-				{
-					if (osWorld->osAthenaPlayerPawn->IsJumpProvidingForce()) osWorld->osAthenaPlayerPawn->Jump();
-				}
-			}
-		}
-		else osWorld->bHasJumped = false;
-
-		Sleep(1000 / 30);
-	}
-}
-
 /// <summary>
 /// Construct Osmium.
 /// </summary>
@@ -59,9 +29,9 @@ World::World()
 	GameMode->StartMatch();
 
 	UE4_CONSOLE_LOG(L"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-	UE4_CONSOLE_LOG(L"Made with ♥ By @xkem0x, @DarkbladeEU, @NotMakks and @SizzyLeaks.\nPlease credit us for our hard work ♥.");
+	UE4_CONSOLE_LOG(L"Made with ♥ By @xkem0x, @DarkbladeEU and @SizzyLeaks.\nPlease credit us for our hard work ♥.");
 
-	CreateThread(nullptr, NULL, reinterpret_cast<LPTHREAD_START_ROUTINE>(&GameThread), nullptr, NULL, nullptr);
+	osWorldStatus = InGame;
 
 	return;
 }
@@ -87,6 +57,20 @@ auto World::Spawn() -> void
 	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
 	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(FindActor(AFortPlayerPawnAthena::StaticClass()));
 	osPlayerController->Possess(osAthenaPlayerPawn);
+
+	osAthenaPlayerPawn->MovementSet->SprintSpeed.Minimum = 650;
+	osAthenaPlayerPawn->MovementSet->SprintSpeed.Maximum = 650;
+	osAthenaPlayerPawn->MovementSet->SprintSpeed.BaseValue = 650;
+	osAthenaPlayerPawn->MovementSet->SprintSpeed.bIsClamped = true;
+	osAthenaPlayerPawn->MovementSet->SprintSpeed.bShouldClampBase = true;
+
+	osAthenaPlayerPawn->MovementSet->RunSpeed.Minimum = 650;
+	osAthenaPlayerPawn->MovementSet->RunSpeed.Maximum = 650;
+	osAthenaPlayerPawn->MovementSet->RunSpeed.BaseValue = 650;
+	osAthenaPlayerPawn->MovementSet->RunSpeed.bIsClamped = true;
+	osAthenaPlayerPawn->MovementSet->RunSpeed.bShouldClampBase = true;
+
+	osAthenaPlayerPawn->MovementSet->OnRep_SpeedMultiplier();
 
 	osPlayerController->CheatManager->God();
 
@@ -129,11 +113,7 @@ auto World::Spawn() -> void
 			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Backpack, CharPartsArray[i]);
 	}
 
-	auto Pickaxe = AthenaPlayerController->CustomizationLoadout.Pickaxe->CreateTemporaryItemInstanceBP(1, 3);
-	auto Weapon = Pickaxe->GetSchematicCraftingResultOrCraftedWeaponBP();
-
-	if (!Weapon) Weapon = UObject::FindObject<UFortWeaponMeleeItemDefinition>("FortWeaponMeleeItemDefinition WID_Harvest_Pickaxe_HolidayCandyCane_Athena.WID_Harvest_Pickaxe_HolidayCandyCane_Athena");
-	else MessageBoxA(nullptr, Weapon->GetFullName().c_str(), "test", MB_OK);
+	auto Weapon = UObject::FindObject<UFortWeaponMeleeItemDefinition>("FortWeaponMeleeItemDefinition WID_Harvest_Pickaxe_HolidayCandyCane_Athena.WID_Harvest_Pickaxe_HolidayCandyCane_Athena");
 
 	FGuid guid;
 	guid.A = rand();
@@ -153,6 +133,16 @@ auto World::Respawn() -> void
 	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
 	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(FindActor(AFortPlayerPawnAthena::StaticClass()));
 	osPlayerController->Possess(osAthenaPlayerPawn);
+
+	auto Weapon = UObject::FindObject<UFortWeaponMeleeItemDefinition>("FortWeaponMeleeItemDefinition WID_Harvest_Pickaxe_HolidayCandyCane_Athena.WID_Harvest_Pickaxe_HolidayCandyCane_Athena");
+
+	FGuid guid;
+	guid.A = rand();
+	guid.B = rand();
+	guid.C = rand();
+	guid.D = rand();
+
+	osAthenaPlayerPawn->EquipWeaponDefinition(Weapon, guid);
 }
 
 auto World::Despawn() const -> void
