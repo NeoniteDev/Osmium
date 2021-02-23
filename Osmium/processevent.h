@@ -39,7 +39,7 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 		osWorldStatus = Constructing;
 	}
 
-	if (nFunc == "ServerAttemptAircraftJump" || nFunc == "AircraftExitedDropZone")
+	if (nFunc == "ServerAttemptAircraftJump" || nFunc == "OnAircraftExitedDropZone")
 	{
 		// Add check to see if pawn is in aircraft (globals)
 		osWorld->Despawn();
@@ -78,7 +78,8 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 			}
 			else if (ScriptName == "event")
 			{
-				UE4_CONSOLE_LOG(L"The event will start in some minutes!, Enjoy your stay ♥.")
+				UE4_CONSOLE_LOG(L"The event will start in a few minutes. Enjoy your stay ♥")
+
 				auto EventPlayer = UObject::FindObject<ULevelSequencePlayer>(
 					"LevelSequencePlayer Athena_Gameplay_Geode.Athena_Gameplay_Geode.PersistentLevel.LevelSequence_LaunchRocket.AnimationPlayer");
 				EventPlayer->Play();
