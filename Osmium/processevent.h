@@ -27,7 +27,7 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 
 	if (nFunc == "Tick")
 	{
-		if (osWorldStatus == InGame)
+		if (osWorldStatus == EWorldStatus::InGame)
 		{
 			auto PlayerController = static_cast<AFortPlayerController*>(osWorld->osPlayerController);
 			if (PlayerController->bIsPlayerActivelyMoving)
@@ -40,9 +40,10 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 						AnimInstance->Montage_Stop(1, CurrentMontage);
 			}
 
-			bool wantsToSprint = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController)->bHoldingSprint;
+			bool isHoldingSprint = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController)->bHoldingSprint;
+			bool wantsToSprint = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController)->bWantsToSprint;
 
-			if (wantsToSprint)
+			if (isHoldingSprint || wantsToSprint)
 				osWorld->osAthenaPlayerPawn->CurrentMovementStyle = EFortMovementStyle::Sprinting;
 			else
 				osWorld->osAthenaPlayerPawn->CurrentMovementStyle = EFortMovementStyle::Running;
@@ -64,13 +65,14 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 								osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 4);
 						}
 
-						osWorld->osAthenaPlayerPawn->OnRep_IsParachuteOpen(osWorld->osAthenaPlayerPawn->IsParachuteOpen()); 
+						osWorld->osAthenaPlayerPawn->OnRep_IsParachuteOpen(osWorld->osAthenaPlayerPawn->IsParachuteOpen());
 
 						osWorld->osAthenaPlayerPawn->Jump();
 					}
 				}
 			}
-			else osWorld->bHasJumped = false;
+			else 
+				osWorld->bHasJumped = false;
 		}
 	}
 
@@ -83,16 +85,14 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 		goto out;
 	}
 
-	if (nFunc == "ReadyToStartMatch" && osWorldStatus == InLobby)
-	{
+	if (nFunc == "ReadyToStartMatch" && osWorldStatus == EWorldStatus::InLobby)
 		osWorld = new osmium::World();
-		osWorldStatus = Constructing;
-	}
 
 	if (nFunc == "ServerAttemptAircraftJump" || nFunc == "OnAircraftExitedDropZone")
 	{
 		auto AthenaPlayerController = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController);
-		if (AthenaPlayerController->IsInAircraft()) osWorld->Respawn();
+		if (AthenaPlayerController->IsInAircraft()) 
+			osWorld->Respawn();
 	}
 
 	if (nFunc == "Event AcceptOption")
@@ -105,9 +105,7 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 	}
 
 	if (nObj == "PlayerPawn_Athena_C_2" && nFunc == "OnLanded")
-	{
 		osWorld->Respawn();
-	}
 
 	if (nFunc == "CheatScript")
 	{
@@ -142,7 +140,8 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 		goto out;
 	}
 
-	if (nFunc == "ServerAttemptInteract") return nullptr;
+	if (nFunc == "ServerAttemptInteract") 
+		return nullptr;
 out:
 #ifdef LOGGING
 	if (nFunc != "EvaluateGraphExposedInputs" &&
@@ -191,9 +190,7 @@ inline bool InitPEH()
 	const auto error = DetourTransactionCommit();
 
 	if (error == NO_ERROR)
-	{
 		return true;
-	}
 
 	MessageBoxA(nullptr, "Couldn't hook process event", "Osmium", MB_OK);
 

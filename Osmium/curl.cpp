@@ -45,7 +45,7 @@ namespace osmium
 				gUrl = sUrl;
 
 				if (sUrl.find("ClientQuest") != std::string::npos) 
-					osWorldStatus = InLobby;
+					osWorldStatus = EWorldStatus::InLobby;
 
 				// Check if the URLs host is EpicGames.
 				if (std::regex_search(sUrl, rEpicGames))

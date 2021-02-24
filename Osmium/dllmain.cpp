@@ -14,7 +14,7 @@ void WINAPI dllMain()
 
 	while (true)
 	{
-		if (osWorldStatus == InLobby)
+		if (osWorldStatus == EWorldStatus::InLobby)
 		{
 			Native::Init();
 			break;
@@ -31,7 +31,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 	{
 		case DLL_PROCESS_ATTACH:
 			CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(&dllMain), nullptr, 0, nullptr);
-			osWorldStatus = None;
+			osWorldStatus = EWorldStatus::None;
 			break;
 
 		case DLL_PROCESS_DETACH:

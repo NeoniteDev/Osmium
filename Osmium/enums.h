@@ -1,6 +1,6 @@
 #pragma once
 
-enum EWorldStatus
+enum class EWorldStatus
 {
 	None,
 	InLobby,

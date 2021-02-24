@@ -9,6 +9,8 @@ using namespace osmium;
 /// </summary>
 World::World()
 {
+	osWorldStatus = EWorldStatus::Constructing;
+
 	osPlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
 
 	Native::InitCheatManager();
@@ -28,10 +30,10 @@ World::World()
 	auto GameMode = reinterpret_cast<AGameMode*>(GEngine->GameViewport->World->AuthorityGameMode);
 	GameMode->StartMatch();
 
+	osWorldStatus = EWorldStatus::InGame;
+
 	UE4_CONSOLE_LOG(L"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 	UE4_CONSOLE_LOG(L"Made with ♥ By @xkem0x, @DarkbladeEU and @SizzyLeaks.\nPlease credit us for our hard work ♥.");
-
-	osWorldStatus = InGame;
 
 	return;
 }
@@ -63,12 +65,6 @@ auto World::Spawn() -> void
 	osAthenaPlayerPawn->MovementSet->SprintSpeed.BaseValue = 650;
 	osAthenaPlayerPawn->MovementSet->SprintSpeed.bIsClamped = true;
 	osAthenaPlayerPawn->MovementSet->SprintSpeed.bShouldClampBase = true;
-
-	osAthenaPlayerPawn->MovementSet->RunSpeed.Minimum = 650;
-	osAthenaPlayerPawn->MovementSet->RunSpeed.Maximum = 650;
-	osAthenaPlayerPawn->MovementSet->RunSpeed.BaseValue = 650;
-	osAthenaPlayerPawn->MovementSet->RunSpeed.bIsClamped = true;
-	osAthenaPlayerPawn->MovementSet->RunSpeed.bShouldClampBase = true;
 
 	osAthenaPlayerPawn->MovementSet->OnRep_SpeedMultiplier();
 
