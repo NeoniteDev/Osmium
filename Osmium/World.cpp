@@ -145,9 +145,10 @@ auto World::Respawn() -> void
 	osAthenaPlayerPawn->EquipWeaponDefinition(Weapon, guid);
 }
 
-auto World::Despawn() const -> void
+auto World::Despawn() -> void
 {
-	if (osAthenaPlayerPawn) osAthenaPlayerPawn->K2_DestroyActor();
+	if (osAthenaPlayerPawn) 
+		osAthenaPlayerPawn->K2_DestroyActor();
 }
 
 /// <summary>
@@ -155,4 +156,5 @@ auto World::Despawn() const -> void
 /// </summary>
 World::~World()
 {
+
 }

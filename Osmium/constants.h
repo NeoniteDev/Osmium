@@ -24,11 +24,17 @@ namespace Strings
 	{
 		constexpr const wchar_t* Frontend = L"Frontend?game=/Script/FortniteGame.FortGameModeFrontEnd";
 		constexpr const wchar_t* AthenaTerrain = L"Athena_Terrain?game=/Game/Athena/Athena_GameMode.Athena_GameMode_C";
-		constexpr const wchar_t* AthenaTerrainBase = L"Athena_Terrain?game=/Script/FortniteGame.FortGameModeBase";
 	}
 	namespace cURL
 	{
-		//constexpr const char* HostURL = "http://127.0.0.1:80";
 		constexpr const char* HostURL = "https://aurora-staging-api-2.slushia.dev";
 	}
+}
+
+namespace Offsets
+{
+	constexpr const auto UWorldOffset = 0x4FC3160;
+	constexpr const auto UEngineOffset = 0x4FC15D8;
+	constexpr const auto ProcessEventOffset = 0x158FB20;
+	constexpr const auto StaticConstructObjectOffset = 0x15B5410;
 }

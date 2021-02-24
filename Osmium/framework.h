@@ -18,8 +18,8 @@
 #include <detours.h>
 
 #include "util.h"
-#include "constants.h"
 #include "enums.h"
+#include "constants.h"
 
 #include "SDK.hpp"
 

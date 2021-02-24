@@ -122,7 +122,6 @@ xcopy "$(TargetPath)" "$(SolutionDir)Build\" /F /I /R /Y</Command>
   <ItemGroup>
     <ClInclude Include="curl.h" />
     <ClInclude Include="constants.h" />
-    <ClInclude Include="hook.h" />
     <ClInclude Include="processevent.h" />
     <ClInclude Include="enums.h" />
     <ClInclude Include="framework.h" />

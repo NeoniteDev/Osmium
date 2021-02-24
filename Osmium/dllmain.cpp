@@ -1,12 +1,8 @@
 #include "curl.h"
-#include "framework.h"
-#include "globals.h"
-#include "native.h"
 #include "World.h"
-
-using namespace osmium;
-
-using namespace SDK;
+#include "native.h"
+#include "globals.h"
+#include "framework.h"
 
 void WINAPI dllMain()
 {
@@ -18,7 +14,7 @@ void WINAPI dllMain()
 
 	while (true)
 	{
-		if (isReady)
+		if (osWorldStatus == InLobby)
 		{
 			Native::Init();
 			break;
@@ -31,9 +27,20 @@ void WINAPI dllMain()
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 {
-	if (dwReason == DLL_PROCESS_ATTACH) CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(&dllMain), nullptr, 0, nullptr);
+	switch (dwReason)
+	{
+		case DLL_PROCESS_ATTACH:
+			CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(&dllMain), nullptr, 0, nullptr);
+			osWorldStatus = None;
+			break;
 
-	else if (dwReason == DLL_PROCESS_DETACH) FreeLibraryAndExitThread(hModule, EXIT_SUCCESS);
+		case DLL_PROCESS_DETACH:
+			FreeLibraryAndExitThread(hModule, EXIT_SUCCESS);
+			break;
+
+		default:
+			break;
+	}
 
 	return TRUE;
 }

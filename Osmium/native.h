@@ -1,4 +1,5 @@
 #pragma once
+#include "constants.h"
 #include "framework.h"
 #include "processevent.h"
 
@@ -53,17 +54,14 @@ namespace Native
 	{
 		const auto ModuleBase = Util::BaseAddress();
 
-		GEngine = *reinterpret_cast<UEngine**>(ModuleBase + UENGINE_OFFSET);
+		GEngine = *reinterpret_cast<UEngine**>(ModuleBase + Offsets::UEngineOffset);
 
-		//Deref if used "(*GWorld)->XXXXXX", Or use GEngine->GameViewport->World
-		GWorld = reinterpret_cast<UWorld**>(ModuleBase + UWORLD_OFFSET);
+		// Deref if used "(*GWorld)->XXXXXX", Or use GEngine->GameViewport->World
+		GWorld = reinterpret_cast<UWorld**>(ModuleBase + Offsets::UWorldOffset);
 
-		StaticConstructObject = decltype(StaticConstructObject)(ModuleBase + SCOI_OFFSET);
+		StaticConstructObject = decltype(StaticConstructObject)(ModuleBase + Offsets::StaticConstructObjectOffset);
 
 		if (InitPEH())
-		{
-			osWorldStatus = InLobby;
 			UnlockConsole();
-		}
 	}
 }

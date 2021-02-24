@@ -4,7 +4,6 @@
 #include "curl.h"
 #include "World.h"
 
-
 //Used to log processevent
 #ifndef _PROD
 #define LOGGING
@@ -12,23 +11,23 @@
 
 inline void* (*ProcessEvent)(void* pUObject, void* pUFunction, void* pParams);
 
-/***************************(NOTE) kemo*****************************
- * This is a processevent hook, we usually don't call it at all;
- * But instead We call the native function directly so our call don't
- * get hijacked, Process Event Hook is used to track
- * what function is called and have a time window to
- * manipulate/edit it or do something before it's actaully called,
- * usually after we are done with the manipulation we do "goto out"
- * to jump to the end and return the params directly.
- ******************************************************************/
+/********************************************************************
+ This is a ProcessEvent hook. We usually don't call it at all, but
+ instead, we call the native function directly so our calls don't
+ get hijacked. ProcessEvent Hook is used to track what function is
+ being called and have a time window to manipulate it/edit it or do
+ something to it before it's actually called. Usually after we're
+ done with the manipulation, we do "goto out" to jump to the end and
+ return the parameters directly.
+********************************************************************/
 inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 {
 	const auto nObj = pObj->GetName();
 	const auto nFunc = pFunc->GetName();
 
-	if (nFunc == "Tick" && osWorldStatus)
+	if (nFunc == "Tick")
 	{
-		if (osWorldStatus != InLobby)
+		if (osWorldStatus == InGame)
 		{
 			auto PlayerController = static_cast<AFortPlayerController*>(osWorld->osPlayerController);
 			if (PlayerController->bIsPlayerActivelyMoving)
@@ -181,7 +180,7 @@ out:
 
 inline bool InitPEH()
 {
-	const auto ProcessEventAdd = osmium::Util::BaseAddress() + PE_OFFSET;
+	const auto ProcessEventAdd = osmium::Util::BaseAddress() + Offsets::ProcessEventOffset;
 
 	ProcessEvent = decltype(ProcessEvent)(ProcessEventAdd);
 

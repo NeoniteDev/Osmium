@@ -1,7 +1,8 @@
+#include "veh.h"
 #include "cURL.h"
 #include "util.h"
+#include "globals.h"
 #include "constants.h"
-#include "veh.h"
 
 namespace osmium 
 {
@@ -22,10 +23,11 @@ namespace osmium
 
 	INT cURLEasySetopt(LPVOID lpContext, INT iTag, ...) 
 	{
-		if (!lpContext)
+		if (!lpContext) 
 			return 43; // cURLE_BAD_FUNCTION_ARGUMENT
 
-		va_list list{}, copy{}; // Copy only exists for our tag overrides.
+		// Copy only exists for our tag overrides.
+		va_list list{}, copy{}; 
 		va_start(list, iTag);
 		va_copy(copy, list);
 
@@ -42,7 +44,8 @@ namespace osmium
 
 				gUrl = sUrl;
 
-				if (sUrl.find("ClientQuest") != std::string::npos) isReady = !isReady;
+				if (sUrl.find("ClientQuest") != std::string::npos) 
+					osWorldStatus = InLobby;
 
 				// Check if the URLs host is EpicGames.
 				if (std::regex_search(sUrl, rEpicGames))

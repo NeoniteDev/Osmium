@@ -1,7 +1,8 @@
 #pragma once
 #include "framework.h"
-LPCVOID redir_func_ptr;
+
 LPCVOID orig_func_ptr;
+LPCVOID redir_func_ptr;
 
 namespace VEH
 {
@@ -10,9 +11,8 @@ namespace VEH
 		if (ExceptionInfo->ExceptionRecord->ExceptionCode == EXCEPTION_GUARD_PAGE)
 		{
 			if (ExceptionInfo->ContextRecord->Rip == (DWORD64)orig_func_ptr)
-			{
 				ExceptionInfo->ContextRecord->Rip = (DWORD64)redir_func_ptr;
-			}
+
 			ExceptionInfo->ContextRecord->EFlags |= 0x100; // http://www.c-jump.com/CIS77/ASM/Instructions/I77_0070_eflags_bits.htm (bit 8)
 			return EXCEPTION_CONTINUE_EXECUTION;
 		}
@@ -32,6 +32,7 @@ namespace VEH
 
 		redir_func_ptr = redirFuncPtr;
 		orig_func_ptr = origFuncPtr;
+
 		if (VirtualQuery(orig_func_ptr, &origMemInfo, sizeof(origMemInfo)) && VirtualQuery(redir_func_ptr, &redirMemInfo, sizeof(redirMemInfo)))
 		{
 			if (origMemInfo.BaseAddress != redirMemInfo.BaseAddress)

@@ -44,7 +44,6 @@ namespace osmium
 			freopen_s(&fDummy, "CONIN$", "r", stdin);
 			freopen_s(&fDummy, "CONOUT$", "w", stderr);
 			freopen_s(&fDummy, "CONOUT$", "w", stdout);
-			//freopen_s(&fDummy, "ProcessEvent.log", "w", stdout);
 		}
 
 		static __forceinline uintptr_t BaseAddress()
