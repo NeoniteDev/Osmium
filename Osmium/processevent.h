@@ -29,32 +29,30 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 	{
 		if (osWorldStatus == EWorldStatus::InGame)
 		{
-			auto PlayerController = static_cast<AFortPlayerController*>(osWorld->osPlayerController);
-			if (PlayerController->bIsPlayerActivelyMoving)
-			{
-				auto AnimInstance = static_cast<AFortPlayerPawnAthena*>(osmium::World::FindActor(AFortPlayerPawnAthena::StaticClass()))->Mesh->GetAnimInstance();
-				auto CurrentMontage = AnimInstance->GetCurrentActiveMontage();
+			auto osFortPlayerController = static_cast<AFortPlayerController*>(osWorld->osPlayerController);
 
-				if (CurrentMontage)
-					if (CurrentMontage->GetName().starts_with("Emote_") || CurrentMontage->GetName().starts_with("Basketball_CMM"))
-						AnimInstance->Montage_Stop(1, CurrentMontage);
+			if (!osWorld->osAthenaPlayerPawn)
+				osWorld->osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(osFortPlayerController->Pawn);
+
+			auto FortAnimInstance = static_cast<UFortAnimInstance*>(osWorld->osAthenaPlayerPawn->Mesh->GetAnimInstance());
+
+			if (FortAnimInstance->bIsJumping || FortAnimInstance->bIsFalling ||
+				osWorld->osAthenaPlayerPawn->bIsCrouched || osFortPlayerController->bIsPlayerActivelyMoving)
+			{
+				auto CurrentMontage = FortAnimInstance->GetCurrentActiveMontage();
+
+				if (CurrentMontage && (CurrentMontage->GetName().starts_with("Emote_") || CurrentMontage->GetName().starts_with("Basketball_CMM")))
+					osWorld->osAthenaPlayerPawn->ServerRootMotionInterruptNotifyStopMontage(CurrentMontage);
 			}
 
-			bool isHoldingSprint = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController)->bHoldingSprint;
-			bool wantsToSprint = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController)->bWantsToSprint;
-
-			if (isHoldingSprint || wantsToSprint)
-				osWorld->osAthenaPlayerPawn->CurrentMovementStyle = EFortMovementStyle::Sprinting;
-			else
-				osWorld->osAthenaPlayerPawn->CurrentMovementStyle = EFortMovementStyle::Running;
+			bool bWantsToSprint = osFortPlayerController->bWantsToSprint;
+			osWorld->osAthenaPlayerPawn->CurrentMovementStyle = bWantsToSprint ? EFortMovementStyle::Sprinting : EFortMovementStyle::Running;
 
 			if (GetAsyncKeyState(VK_SPACE))
 			{
 				if (osWorld->bHasJumped == false)
 				{
-					osWorld->bHasJumped = true;
-
-					bool isInAircraft = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController)->IsInAircraft();
+					bool isInAircraft = static_cast<AFortPlayerControllerAthena*>(osFortPlayerController)->IsInAircraft();
 					if (!isInAircraft)
 					{
 						if (!osWorld->osAthenaPlayerPawn->IsParachuteForcedOpen())
@@ -63,16 +61,18 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 								osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 3);
 							else if (osWorld->osAthenaPlayerPawn->IsParachuteOpen())
 								osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 4);
+
+							osWorld->osAthenaPlayerPawn->OnRep_IsParachuteOpen(osWorld->osAthenaPlayerPawn->IsParachuteOpen());
 						}
 
-						osWorld->osAthenaPlayerPawn->OnRep_IsParachuteOpen(osWorld->osAthenaPlayerPawn->IsParachuteOpen());
-
-						osWorld->osAthenaPlayerPawn->Jump();
+						if (!osWorld->osAthenaPlayerPawn->IsSkydiving() && !osWorld->osAthenaPlayerPawn->IsParachuteOpen())
+							osWorld->osAthenaPlayerPawn->Jump();
 					}
+
+					osWorld->bHasJumped = true;
 				}
 			}
-			else 
-				osWorld->bHasJumped = false;
+			else osWorld->bHasJumped = false;
 		}
 	}
 
@@ -95,13 +95,21 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 			osWorld->Respawn();
 	}
 
-	if (nFunc == "Event AcceptOption")
+	if (nFunc == "ServerPlayEmoteItem")
 	{
-		auto PlayerController = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController);
-		auto Dance = PlayerController->CustomizationLoadout.Dances[0];
-		auto Montage = Dance->GetAnimationHardReference(EFortCustomBodyType::All, EFortCustomGender::Both);
-		auto AnimInstance = static_cast<AFortPlayerPawnAthena*>(osmium::World::FindActor(AFortPlayerPawnAthena::StaticClass()))->Mesh->GetAnimInstance();
-		AnimInstance->Montage_Play(Montage, 1, EMontagePlayReturnType::Duration, 0, true);
+		auto osFortPlayerController = static_cast<AFortPlayerController*>(osWorld->osPlayerController);
+
+		auto FortAnimInstance = static_cast<UFortAnimInstance*>(osWorld->osAthenaPlayerPawn->Mesh->GetAnimInstance());
+
+		if (!FortAnimInstance->bIsJumping && !FortAnimInstance->bIsFalling &&
+			!osWorld->osAthenaPlayerPawn->bIsCrouched && !osFortPlayerController->bIsPlayerActivelyMoving)
+		{
+			auto EmoteAsset = static_cast<AFortPlayerController_ServerPlayEmoteItem_Params*>(pParams)->EmoteAsset;
+			auto Montage = EmoteAsset->GetAnimationHardReference(EFortCustomBodyType::All, EFortCustomGender::Both);
+
+			auto AnimInstance = static_cast<AFortPlayerPawnAthena*>(osmium::World::FindActor(AFortPlayerPawnAthena::StaticClass()))->Mesh->GetAnimInstance();
+			AnimInstance->Montage_Play(Montage, 1, EMontagePlayReturnType::Duration, 0, true);
+		}
 	}
 
 	if (nObj == "PlayerPawn_Athena_C_2" && nFunc == "OnLanded")

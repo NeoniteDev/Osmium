@@ -26,6 +26,9 @@ World::World()
 	AthenaGameState->CurrentPlaylistData = Playlist;
 	AthenaGameState->OnRep_CurrentPlaylistData();
 
+	AthenaGameState->TotalPlayers = 1;
+	AthenaGameState->PlayersLeft = 1;
+
 	FortPlayerController->ServerReadyToStartMatch();
 	auto GameMode = reinterpret_cast<AGameMode*>(GEngine->GameViewport->World->AuthorityGameMode);
 	GameMode->StartMatch();
@@ -109,16 +112,6 @@ auto World::Spawn() -> void
 			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Backpack, CharPartsArray[i]);
 	}
 
-	auto Weapon = UObject::FindObject<UFortWeaponMeleeItemDefinition>("FortWeaponMeleeItemDefinition WID_Harvest_Pickaxe_HolidayCandyCane_Athena.WID_Harvest_Pickaxe_HolidayCandyCane_Athena");
-
-	FGuid guid;
-	guid.A = rand();
-	guid.B = rand();
-	guid.C = rand();
-	guid.D = rand();
-
-	osAthenaPlayerPawn->EquipWeaponDefinition(Weapon, guid);
-
 	PlayerState->OnRep_CharacterParts();
 	osAthenaPlayerPawn->OnRep_CustomizationLoadout();
 }
@@ -129,16 +122,6 @@ auto World::Respawn() -> void
 	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
 	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(FindActor(AFortPlayerPawnAthena::StaticClass()));
 	osPlayerController->Possess(osAthenaPlayerPawn);
-
-	auto Weapon = UObject::FindObject<UFortWeaponMeleeItemDefinition>("FortWeaponMeleeItemDefinition WID_Harvest_Pickaxe_HolidayCandyCane_Athena.WID_Harvest_Pickaxe_HolidayCandyCane_Athena");
-
-	FGuid guid;
-	guid.A = rand();
-	guid.B = rand();
-	guid.C = rand();
-	guid.D = rand();
-
-	osAthenaPlayerPawn->EquipWeaponDefinition(Weapon, guid);
 }
 
 auto World::Despawn() -> void
