@@ -14,13 +14,14 @@ World::World()
 
 	osPlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
 
+	osFortPlayerController = reinterpret_cast<AFortPlayerController*>(osPlayerController);
+	osFortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(osFortPlayerController);
+
 	Native::InitCheatManager();
 
 	osPlayerController->CheatManager->DestroyAll(AFortHLODSMActor::StaticClass());
 
 	Spawn();
-
-	auto FortPlayerController = reinterpret_cast<AFortPlayerController*>(osPlayerController);
 
 	auto Playlist = UObject::FindObject<UFortPlaylistAthena>("FortPlaylistAthena Playlist_DefaultSolo.Playlist_DefaultSolo");
 	auto AthenaGameState = static_cast<AFortGameStateAthena*>(GEngine->GameViewport->World->GameState);
@@ -30,14 +31,13 @@ World::World()
 	AthenaGameState->TotalPlayers = 1;
 	AthenaGameState->PlayersLeft = 1;
 
-	FortPlayerController->ServerReadyToStartMatch();
+	osFortPlayerController->ServerReadyToStartMatch();
 	auto GameMode = reinterpret_cast<AGameMode*>(GEngine->GameViewport->World->AuthorityGameMode);
 	GameMode->StartMatch();
 
 	osWorldStatus = EWorldStatus::InGame;
 
-	UE4_CONSOLE_LOG(L"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-	UE4_CONSOLE_LOG(L"Made with ♥ By @xkem0x, @DarkbladeEU and @SizzyLeaks.\nPlease credit us for our hard work ♥.");
+	UE4_CONSOLE_LOG(L"Osmium by @xkem0x, @DarkbladeEU and @SizzyLeaks.\n Please credit us for our hard work ♥\n Huge thanks to @NotMakks for providing an SDK and crash fixes.");
 
 	return;
 }
@@ -84,21 +84,34 @@ auto World::Spawn() -> void
 	std::vector<UCustomCharacterPart*> CharPartsArray;
 
 	auto HeroCharParts = AthenaPlayerController->StrongMyHero->CharacterParts;
-	for (auto i = 0; i < HeroCharParts.Num(); i++) CharPartsArray.push_back(HeroCharParts[i]);
+	for (auto i = 0; i < HeroCharParts.Num(); i++) 
+		CharPartsArray.push_back(HeroCharParts[i]);
 
 	auto Backpack = AthenaPlayerController->CustomizationLoadout.Backpack;
-	auto BackpackCharPart = Backpack->GetCharacterParts()[0];
-	CharPartsArray.push_back(BackpackCharPart);
+
+	if (Backpack)
+	{
+		try
+		{
+			auto BackpackCharPart = Backpack->GetCharacterParts()[0];
+			CharPartsArray.push_back(BackpackCharPart);
+		}
+		catch (...) { }
+	}
 
 	for (auto i = 0; i < CharPartsArray.size(); i++)
 	{
-		if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHeadData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Head, CharPartsArray[i]);
+		if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHeadData::StaticClass())) 
+			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Head, CharPartsArray[i]);
 
-		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBodyPartData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Body, CharPartsArray[i]);
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBodyPartData::StaticClass())) 
+			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Body, CharPartsArray[i]);
 
-		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHatData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Hat, CharPartsArray[i]);
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHatData::StaticClass())) 
+			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Hat, CharPartsArray[i]);
 
-		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBackpackData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Backpack, CharPartsArray[i]);
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBackpackData::StaticClass())) 
+			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Backpack, CharPartsArray[i]);
 	}
 
 	AthenaPlayerState->OnRep_CharacterParts();
@@ -109,89 +122,89 @@ auto World::Spawn() -> void
 
 auto World::Respawn() -> void
 {
-	Despawn();
+	if (osAthenaPlayerPawn)
+		osAthenaPlayerPawn->K2_DestroyActor();
+
 	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
 	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(FindActor(AFortPlayerPawnAthena::StaticClass()));
 	osPlayerController->Possess(osAthenaPlayerPawn);
-}
-
-auto World::Despawn() -> void
-{
-	if (osAthenaPlayerPawn) osAthenaPlayerPawn->K2_DestroyActor();
 }
 
 auto World::Tick() -> void
 {
 	if (osWorldStatus == EWorldStatus::InGame)
 	{
-		if (!osFortPlayerController) osFortPlayerController = static_cast<AFortPlayerController*>(osPlayerController);
+		if (!osFortPlayerController) 
+			osFortPlayerController = static_cast<AFortPlayerController*>(osPlayerController);
 
-		if (!osAthenaPlayerPawn) osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(osFortPlayerController->Pawn);
+		if (!osAthenaPlayerPawn) 
+			osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(osFortPlayerController->Pawn);
 
-		if (!osFortAnimInstance) osFortAnimInstance = static_cast<UFortAnimInstance*>(osAthenaPlayerPawn->Mesh->GetAnimInstance());
+		if (!osFortPlayerControllerAthena) 
+			osFortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(osFortPlayerController);
 
-		if (!osFortPlayerControllerAthena) osFortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(osFortPlayerController);
+		osFortAnimInstance = static_cast<UFortAnimInstance*>(osAthenaPlayerPawn->Mesh->GetAnimInstance());
 
-
-		if (!osFortPlayerControllerAthena->IsInAircraft() && osFortAnimInstance &&
-			(osFortAnimInstance->bIsJumping || osFortAnimInstance->bIsFalling ||
-				osAthenaPlayerPawn->bIsCrouched || osFortPlayerController->bIsPlayerActivelyMoving))
+		if (!osFortPlayerControllerAthena->IsInAircraft() && !osAthenaPlayerPawn->IsSkydiving() && osFortAnimInstance &&
+			(osAthenaPlayerPawn->bIsCrouched || osFortPlayerController->bIsPlayerActivelyMoving || osFortAnimInstance->bIsJumping || osFortAnimInstance->bIsFalling))
 		{
 			auto CurrentMontage = osFortAnimInstance->GetCurrentActiveMontage();
 
 			if (CurrentMontage && (CurrentMontage->GetName().starts_with("Emote_") || CurrentMontage->GetName().starts_with("Basketball_CMM")))
-			{
 				osAthenaPlayerPawn->ServerRootMotionInterruptNotifyStopMontage(CurrentMontage);
-			}
 		}
+
+		if (!osAthenaPlayerPawn->CurrentWeapon && !osFortPlayerControllerAthena->IsInAircraft())
+			EquipPickaxe();
+
+		bool bWantsToSprint = osFortPlayerController->bWantsToSprint;
+		osAthenaPlayerPawn->CurrentMovementStyle = bWantsToSprint ? EFortMovementStyle::Charging : EFortMovementStyle::Sprinting;
 
 		if (GetAsyncKeyState(VK_SPACE))
 		{
 			if (bHasJumped == false)
 			{
-				bHasJumped = true;
-
-				bool isInAircraft = osFortPlayerControllerAthena->IsInAircraft();
-				if (!isInAircraft)
+				if (!osFortPlayerControllerAthena->IsInAircraft())
 				{
 					if (!osAthenaPlayerPawn->IsParachuteForcedOpen())
 					{
-						if (!osAthenaPlayerPawn->IsParachuteOpen())
-						{
-							//false = launch pad
-							osAthenaPlayerPawn->BeginSkydiving(true);
-							//osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 4);
-						}
-						else if (osAthenaPlayerPawn->IsSkydiving() && !osWorld->osAthenaPlayerPawn->IsParachuteOpen())
-						{
+						if (osAthenaPlayerPawn->IsSkydiving() && !osAthenaPlayerPawn->IsParachuteOpen())
 							osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 3);
-							osAthenaPlayerPawn->bIsParachuteForcedOpen = true;
-							osAthenaPlayerPawn->OnRep_IsParachuteOpen(false);
-						}
+						else if (osAthenaPlayerPawn->IsParachuteOpen())
+							osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 4);
+
+						osAthenaPlayerPawn->OnRep_IsParachuteOpen(osAthenaPlayerPawn->IsParachuteOpen());
 					}
 
-					if (!osAthenaPlayerPawn->IsJumpProvidingForce())
-					{
+					if (!osAthenaPlayerPawn->IsSkydiving() || osAthenaPlayerPawn->IsParachuteOpen())
 						osAthenaPlayerPawn->Jump();
-					}
 				}
+
+				bHasJumped = true;
 			}
 		}
 		else bHasJumped = false;
-
-		if (GetAsyncKeyState(VK_SHIFT))
-		{
-			static_cast<UFortPlayerAnimInstance*>(osFortAnimInstance)->bIsSprinting = true;
-		}
 	}
 }
 
 auto World::EquipPickaxe() -> void
 {
-	auto AthenaPlayerController = reinterpret_cast<AFortPlayerControllerAthena*>(osPlayerController);
+	auto PickaxeID = osFortPlayerControllerAthena->CustomizationLoadout.Pickaxe->GetName();
 
-	auto PickaxeID = AthenaPlayerController->CustomizationLoadout.Pickaxe->GetName();
-	auto Weapon = UObject::FindObject<UFortWeaponMeleeItemDefinition>("FortWeaponMeleeItemDefinition WID_Harvest_Pickaxe_Athena_C_T01.WID_Harvest_Pickaxe_Athena_C_T01");
+	if (osPickaxe)
+	{
+		FGuid GUID;
+		GUID.A = rand();
+		GUID.B = rand();
+		GUID.C = rand();
+		GUID.D = rand();
+
+		osAthenaPlayerPawn->EquipWeaponDefinition(osPickaxe, GUID);
+
+		return;
+	}
+
+	osPickaxe = UObject::FindObject<UFortWeaponMeleeItemDefinition>("FortWeaponMeleeItemDefinition WID_Harvest_Pickaxe_Athena_C_T01.WID_Harvest_Pickaxe_Athena_C_T01");
 
 	httplib::Client client("https://fortnite-api.com");
 	client.set_follow_location(true);
@@ -211,7 +224,7 @@ auto World::EquipPickaxe() -> void
 
 				auto AssetName = "FortWeaponMeleeItemDefinition " + WeaponID + "." + WeaponID;
 
-				Weapon = UObject::FindObject<UFortWeaponMeleeItemDefinition>(AssetName);
+				osPickaxe = UObject::FindObject<UFortWeaponMeleeItemDefinition>(AssetName);
 			}
 		}
 	}
@@ -222,7 +235,7 @@ auto World::EquipPickaxe() -> void
 	GUID.C = rand();
 	GUID.D = rand();
 
-	osAthenaPlayerPawn->EquipWeaponDefinition(Weapon, GUID);
+	osAthenaPlayerPawn->EquipWeaponDefinition(osPickaxe, GUID);
 }
 
 /// <summary>

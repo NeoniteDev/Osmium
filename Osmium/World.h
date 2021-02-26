@@ -9,11 +9,15 @@ namespace osmium
 		bool bHasJumped = false;
 
 		AFortPlayerPawn* osFortPlayerPawn;
+		AFortPlayerPawnAthena* osAthenaPlayerPawn;
+
 		UFortAnimInstance* osFortAnimInstance;
+
+		UFortWeaponMeleeItemDefinition* osPickaxe;
+
 		APlayerController* osPlayerController;
 		AFortPlayerController* osFortPlayerController;
 		AFortPlayerControllerAthena* osFortPlayerControllerAthena;
-		AFortPlayerPawnAthena* osAthenaPlayerPawn;
 
 		World();
 		~World();
@@ -22,7 +26,6 @@ namespace osmium
 
 		void Spawn();
 		void Respawn();
-		void Despawn();
 		void Tick();
 		void EquipPickaxe();
 	};

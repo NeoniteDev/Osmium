@@ -55,7 +55,7 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>.\minhook;$(IncludePath)</IncludePath>
     <LibraryPath>.\minhook;$(LibraryPath)</LibraryPath>
-    <TargetName>Aurora.Runtime</TargetName>
+    <TargetName>Osmium</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

@@ -51,24 +51,25 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 	if (nFunc == "ServerAttemptAircraftJump" || nFunc == "OnAircraftExitedDropZone")
 	{
 		auto AthenaPlayerController = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController);
-		if (AthenaPlayerController->IsInAircraft()) osWorld->Respawn();
+		if (AthenaPlayerController->IsInAircraft()) 
+			osWorld->Respawn();
 
 		goto out;
 	}
 
 	if (nFunc == "ServerPlayEmoteItem")
 	{
-		auto osFortPlayerController = static_cast<AFortPlayerController*>(osWorld->osPlayerController);
-
 		auto FortAnimInstance = static_cast<UFortAnimInstance*>(osWorld->osAthenaPlayerPawn->Mesh->GetAnimInstance());
 
-		if (!FortAnimInstance->bIsJumping && !FortAnimInstance->bIsFalling &&
-			!osWorld->osAthenaPlayerPawn->bIsCrouched && !osFortPlayerController->bIsPlayerActivelyMoving)
+		if (!FortAnimInstance->bIsJumping && !FortAnimInstance->bIsFalling && !osWorld->osFortPlayerController->bIsPlayerActivelyMoving)
 		{
+			if (osWorld->osAthenaPlayerPawn->bIsCrouched)
+				osWorld->osAthenaPlayerPawn->UnCrouch(true);
+
 			auto EmoteAsset = static_cast<AFortPlayerController_ServerPlayEmoteItem_Params*>(pParams)->EmoteAsset;
 			auto Montage = EmoteAsset->GetAnimationHardReference(EFortCustomBodyType::All, EFortCustomGender::Both);
 
-			auto AnimInstance = static_cast<AFortPlayerPawnAthena*>(osmium::World::FindActor(AFortPlayerPawnAthena::StaticClass()))->Mesh->GetAnimInstance();
+			auto AnimInstance = osWorld->osAthenaPlayerPawn->Mesh->GetAnimInstance();
 			AnimInstance->Montage_Play(Montage, 1, EMontagePlayReturnType::Duration, 0, true);
 		}
 

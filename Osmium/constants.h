@@ -27,7 +27,8 @@ namespace Strings
 	}
 	namespace cURL
 	{
-		constexpr const char* HostURL = "https://aurora-staging-api-2.slushia.dev";
+		constexpr const char* HostURL = "http://localhost:5595";
+		//constexpr const char* HostURL = "https://aurora-staging-api-2.slushia.dev";
 	}
 }
 
