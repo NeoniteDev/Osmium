@@ -27,62 +27,7 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 
 	if (nFunc == "Tick")
 	{
-		if (osWorldStatus == EWorldStatus::InGame)
-		{
-			auto osFortPlayerController = static_cast<AFortPlayerController*>(osWorld->osPlayerController);
-
-			if (!osWorld->osAthenaPlayerPawn)
-				osWorld->osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(osFortPlayerController->Pawn);
-
-			auto FortAnimInstance = static_cast<UFortAnimInstance*>(osWorld->osAthenaPlayerPawn->Mesh->GetAnimInstance());
-
-			if (FortAnimInstance && (FortAnimInstance->bIsJumping || FortAnimInstance->bIsFalling ||
-				osWorld->osAthenaPlayerPawn->bIsCrouched || osFortPlayerController->bIsPlayerActivelyMoving))
-			{
-				auto CurrentMontage = FortAnimInstance->GetCurrentActiveMontage();
-
-				if (CurrentMontage && (CurrentMontage->GetName().starts_with("Emote_") || CurrentMontage->GetName().starts_with("Basketball_CMM")))
-					osWorld->osAthenaPlayerPawn->ServerRootMotionInterruptNotifyStopMontage(CurrentMontage);
-			}
-
-			bool bWantsToSprint = osFortPlayerController->bWantsToSprint;
-			osWorld->osAthenaPlayerPawn->CurrentMovementStyle = bWantsToSprint ? EFortMovementStyle::Sprinting : EFortMovementStyle::Running;
-
-			if (GetAsyncKeyState(VK_SPACE))
-			{
-				if (osWorld->bHasJumped == false)
-				{
-					bool isInAircraft = static_cast<AFortPlayerControllerAthena*>(osFortPlayerController)->IsInAircraft();
-					if (!isInAircraft)
-					{
-						if (!osWorld->osAthenaPlayerPawn->IsParachuteForcedOpen())
-						{
-							if (osWorld->osAthenaPlayerPawn->IsSkydiving() && !osWorld->osAthenaPlayerPawn->IsParachuteOpen())
-								osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 3);
-							else if (osWorld->osAthenaPlayerPawn->IsParachuteOpen())
-								osWorld->osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 4);
-
-							osWorld->osAthenaPlayerPawn->OnRep_IsParachuteOpen(osWorld->osAthenaPlayerPawn->IsParachuteOpen());
-						}
-
-						if (!osWorld->osAthenaPlayerPawn->IsSkydiving() && !osWorld->osAthenaPlayerPawn->IsParachuteOpen())
-							osWorld->osAthenaPlayerPawn->Jump();
-					}
-
-					osWorld->bHasJumped = true;
-				}
-			}
-			else osWorld->bHasJumped = false;
-
-			if (GetAsyncKeyState(VK_F10))
-			{
-				auto Location = osWorld->osAthenaPlayerPawn->K2_GetActorLocation();
-
-				auto LocationString = "X: " + std::to_string(Location.X) + "\nY: " + std::to_string(Location.Y) + "\nZ: " + std::to_string(Location.Z);
-
-				MessageBoxA(nullptr, LocationString.c_str(), "K2_GetActorLocation", MB_OK);
-			}
-		}
+		osWorld->Tick();
 
 		goto out;
 	}
@@ -106,8 +51,7 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 	if (nFunc == "ServerAttemptAircraftJump" || nFunc == "OnAircraftExitedDropZone")
 	{
 		auto AthenaPlayerController = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController);
-		if (AthenaPlayerController->IsInAircraft()) 
-			osWorld->Respawn();
+		if (AthenaPlayerController->IsInAircraft()) osWorld->Respawn();
 
 		goto out;
 	}
@@ -211,8 +155,7 @@ inline bool InitPEH()
 
 	const auto error = DetourTransactionCommit();
 
-	if (error == NO_ERROR)
-		return true;
+	if (error == NO_ERROR) return true;
 
 	MessageBoxA(nullptr, "Couldn't hook process event", "Osmium", MB_OK);
 

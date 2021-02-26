@@ -84,8 +84,7 @@ auto World::Spawn() -> void
 	std::vector<UCustomCharacterPart*> CharPartsArray;
 
 	auto HeroCharParts = AthenaPlayerController->StrongMyHero->CharacterParts;
-	for (auto i = 0; i < HeroCharParts.Num(); i++) 
-		CharPartsArray.push_back(HeroCharParts[i]);
+	for (auto i = 0; i < HeroCharParts.Num(); i++) CharPartsArray.push_back(HeroCharParts[i]);
 
 	auto Backpack = AthenaPlayerController->CustomizationLoadout.Backpack;
 	auto BackpackCharPart = Backpack->GetCharacterParts()[0];
@@ -93,17 +92,13 @@ auto World::Spawn() -> void
 
 	for (auto i = 0; i < CharPartsArray.size(); i++)
 	{
-		if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHeadData::StaticClass()))
-			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Head, CharPartsArray[i]);
+		if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHeadData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Head, CharPartsArray[i]);
 
-		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBodyPartData::StaticClass()))
-			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Body, CharPartsArray[i]);
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBodyPartData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Body, CharPartsArray[i]);
 
-		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHatData::StaticClass()))
-			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Hat, CharPartsArray[i]);
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHatData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Hat, CharPartsArray[i]);
 
-		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBackpackData::StaticClass()))
-			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Backpack, CharPartsArray[i]);
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBackpackData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Backpack, CharPartsArray[i]);
 	}
 
 	AthenaPlayerState->OnRep_CharacterParts();
@@ -122,8 +117,73 @@ auto World::Respawn() -> void
 
 auto World::Despawn() -> void
 {
-	if (osAthenaPlayerPawn) 
-		osAthenaPlayerPawn->K2_DestroyActor();
+	if (osAthenaPlayerPawn) osAthenaPlayerPawn->K2_DestroyActor();
+}
+
+auto World::Tick() -> void
+{
+	if (osWorldStatus == EWorldStatus::InGame)
+	{
+		if (!osFortPlayerController) osFortPlayerController = static_cast<AFortPlayerController*>(osPlayerController);
+
+		if (!osAthenaPlayerPawn) osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(osFortPlayerController->Pawn);
+
+		if (!osFortAnimInstance) osFortAnimInstance = static_cast<UFortAnimInstance*>(osAthenaPlayerPawn->Mesh->GetAnimInstance());
+
+		if (!osFortPlayerControllerAthena) osFortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(osFortPlayerController);
+
+
+		if (!osFortPlayerControllerAthena->IsInAircraft() && osFortAnimInstance &&
+			(osFortAnimInstance->bIsJumping || osFortAnimInstance->bIsFalling ||
+				osAthenaPlayerPawn->bIsCrouched || osFortPlayerController->bIsPlayerActivelyMoving))
+		{
+			auto CurrentMontage = osFortAnimInstance->GetCurrentActiveMontage();
+
+			if (CurrentMontage && (CurrentMontage->GetName().starts_with("Emote_") || CurrentMontage->GetName().starts_with("Basketball_CMM")))
+			{
+				osAthenaPlayerPawn->ServerRootMotionInterruptNotifyStopMontage(CurrentMontage);
+			}
+		}
+
+		if (GetAsyncKeyState(VK_SPACE))
+		{
+			if (bHasJumped == false)
+			{
+				bHasJumped = true;
+
+				bool isInAircraft = osFortPlayerControllerAthena->IsInAircraft();
+				if (!isInAircraft)
+				{
+					if (!osAthenaPlayerPawn->IsParachuteForcedOpen())
+					{
+						if (!osAthenaPlayerPawn->IsParachuteOpen())
+						{
+							//false = launch pad
+							osAthenaPlayerPawn->BeginSkydiving(true);
+							//osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 4);
+						}
+						else if (osAthenaPlayerPawn->IsSkydiving() && !osWorld->osAthenaPlayerPawn->IsParachuteOpen())
+						{
+							osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 3);
+							osAthenaPlayerPawn->bIsParachuteForcedOpen = true;
+							osAthenaPlayerPawn->OnRep_IsParachuteOpen(false);
+						}
+					}
+
+					if (!osAthenaPlayerPawn->IsJumpProvidingForce())
+					{
+						osAthenaPlayerPawn->Jump();
+					}
+				}
+			}
+		}
+		else bHasJumped = false;
+
+		if (GetAsyncKeyState(VK_SHIFT))
+		{
+			static_cast<UFortPlayerAnimInstance*>(osFortAnimInstance)->bIsSprinting = true;
+		}
+	}
 }
 
 auto World::EquipPickaxe() -> void
@@ -139,18 +199,18 @@ auto World::EquipPickaxe() -> void
 	std::string route = "/v2/cosmetics/br/search?id=" + PickaxeID;
 
 	if (auto response = client.Get(route.c_str()))
-	{		
+	{
 		if (response->status == 200)
 		{
 			auto Data = nlohmann::json::parse(response->body)["data"];
-			
+
 			if (!Data.is_null())
 			{
 				std::string WeaponID = Data["definitionPath"].get<std::string>();
 				WeaponID = WeaponID.erase(0, WeaponID.find("WID"));
 
 				auto AssetName = "FortWeaponMeleeItemDefinition " + WeaponID + "." + WeaponID;
-				
+
 				Weapon = UObject::FindObject<UFortWeaponMeleeItemDefinition>(AssetName);
 			}
 		}
@@ -170,5 +230,4 @@ auto World::EquipPickaxe() -> void
 /// </summary>
 World::~World()
 {
-
 }

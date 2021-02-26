@@ -4,6 +4,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 
+#pragma warning (disable : 4309)
+
 #include <vector>
 #include <fstream>
 #include <iostream>
