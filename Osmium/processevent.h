@@ -112,9 +112,6 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 		goto out;
 	}
 
-	if (nFunc == "OnLanded" && nObj == "PlayerPawn_Athena_C_2")
-		osWorld->EquipPickaxe();
-
 	if (nFunc == "ServerPlayEmoteItem")
 	{
 		auto osFortPlayerController = static_cast<AFortPlayerController*>(osWorld->osPlayerController);
