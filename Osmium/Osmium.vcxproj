@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\openssl-vc141-native.1.1.1\build\native\openssl-vc141-native.props" Condition="Exists('..\packages\openssl-vc141-native.1.1.1\build\native\openssl-vc141-native.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Release [Prod]|x64">
       <Configuration>Release [Prod]</Configuration>
@@ -68,6 +69,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <WholeProgramOptimization>false</WholeProgramOptimization>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -122,6 +124,8 @@ xcopy "$(TargetPath)" "$(SolutionDir)Build\" /F /I /R /Y</Command>
   <ItemGroup>
     <ClInclude Include="curl.h" />
     <ClInclude Include="constants.h" />
+    <ClInclude Include="httplib.h" />
+    <ClInclude Include="json.hpp" />
     <ClInclude Include="processevent.h" />
     <ClInclude Include="enums.h" />
     <ClInclude Include="framework.h" />
@@ -138,11 +142,14 @@ xcopy "$(TargetPath)" "$(SolutionDir)Build\" /F /I /R /Y</Command>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\Detours.4.0.1\build\native\Detours.targets" Condition="Exists('..\packages\Detours.4.0.1\build\native\Detours.targets')" />
+    <Import Project="..\packages\openssl-vc141-native.1.1.1\build\native\openssl-vc141-native.targets" Condition="Exists('..\packages\openssl-vc141-native.1.1.1\build\native\openssl-vc141-native.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Detours.4.0.1\build\native\Detours.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Detours.4.0.1\build\native\Detours.targets'))" />
+    <Error Condition="!Exists('..\packages\openssl-vc141-native.1.1.1\build\native\openssl-vc141-native.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\openssl-vc141-native.1.1.1\build\native\openssl-vc141-native.props'))" />
+    <Error Condition="!Exists('..\packages\openssl-vc141-native.1.1.1\build\native\openssl-vc141-native.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\openssl-vc141-native.1.1.1\build\native\openssl-vc141-native.targets'))" />
   </Target>
 </Project>

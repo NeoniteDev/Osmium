@@ -1,7 +1,8 @@
 #pragma once
 
-#define _CRT_SECURE_NO_WARNINGS
 #define WIN32_LEAN_AND_MEAN
+#define _CRT_SECURE_NO_WARNINGS
+#define CPPHTTPLIB_OPENSSL_SUPPORT
 
 #include <vector>
 #include <fstream>
@@ -17,10 +18,12 @@
 #include <Windows.h>
 #include <detours.h>
 
+#include "SDK.hpp"
+#include "json.hpp"
+
 #include "util.h"
 #include "enums.h"
+#include "httplib.h"
 #include "constants.h"
-
-#include "SDK.hpp"
 
 using namespace SDK;

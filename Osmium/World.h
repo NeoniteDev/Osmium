@@ -20,5 +20,6 @@ namespace osmium
 		void Spawn();
 		void Respawn();
 		void Despawn();
+		void EquipPickaxe();
 	};
 }

@@ -1,6 +1,7 @@
 ﻿#include "World.h"
 #include "native.h"
 #include "globals.h"
+#include "framework.h"
 
 using namespace osmium;
 
@@ -63,17 +64,11 @@ auto World::Spawn() -> void
 	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(FindActor(AFortPlayerPawnAthena::StaticClass()));
 	osPlayerController->Possess(osAthenaPlayerPawn);
 
-	osAthenaPlayerPawn->MovementSet->SprintSpeed.Minimum = 650;
-	osAthenaPlayerPawn->MovementSet->SprintSpeed.Maximum = 650;
-	osAthenaPlayerPawn->MovementSet->SprintSpeed.BaseValue = 650;
-	osAthenaPlayerPawn->MovementSet->SprintSpeed.bIsClamped = true;
-	osAthenaPlayerPawn->MovementSet->SprintSpeed.bShouldClampBase = true;
-
-	osAthenaPlayerPawn->MovementSet->OnRep_SpeedMultiplier();
-
 	osPlayerController->CheatManager->God();
 
 	auto Location = osAthenaPlayerPawn->K2_GetActorLocation();
+	Location.X = -127500;
+	Location.Y = -110500;
 	Location.Z = Location.Z + 4000;
 
 	FRotator Rotation;
@@ -85,13 +80,12 @@ auto World::Spawn() -> void
 
 	auto AthenaPlayerController = reinterpret_cast<AFortPlayerControllerAthena*>(osPlayerController);
 	auto AthenaPlayerState = reinterpret_cast<AFortPlayerStateAthena*>(osAthenaPlayerPawn->PlayerState);
-	auto PlayerState = reinterpret_cast<AFortPlayerState*>(AthenaPlayerState);
 
 	std::vector<UCustomCharacterPart*> CharPartsArray;
 
 	auto HeroCharParts = AthenaPlayerController->StrongMyHero->CharacterParts;
-
-	for (auto i = 0; i < HeroCharParts.Num(); i++) CharPartsArray.push_back(HeroCharParts[i]);
+	for (auto i = 0; i < HeroCharParts.Num(); i++) 
+		CharPartsArray.push_back(HeroCharParts[i]);
 
 	auto Backpack = AthenaPlayerController->CustomizationLoadout.Backpack;
 	auto BackpackCharPart = Backpack->GetCharacterParts()[0];
@@ -112,8 +106,10 @@ auto World::Spawn() -> void
 			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Backpack, CharPartsArray[i]);
 	}
 
-	PlayerState->OnRep_CharacterParts();
+	AthenaPlayerState->OnRep_CharacterParts();
 	osAthenaPlayerPawn->OnRep_CustomizationLoadout();
+
+	EquipPickaxe();
 }
 
 auto World::Respawn() -> void
@@ -128,6 +124,45 @@ auto World::Despawn() -> void
 {
 	if (osAthenaPlayerPawn) 
 		osAthenaPlayerPawn->K2_DestroyActor();
+}
+
+auto World::EquipPickaxe() -> void
+{
+	auto AthenaPlayerController = reinterpret_cast<AFortPlayerControllerAthena*>(osPlayerController);
+
+	auto PickaxeID = AthenaPlayerController->CustomizationLoadout.Pickaxe->GetName();
+	auto Weapon = UObject::FindObject<UFortWeaponMeleeItemDefinition>("FortWeaponMeleeItemDefinition WID_Harvest_Pickaxe_Athena_C_T01.WID_Harvest_Pickaxe_Athena_C_T01");
+
+	httplib::Client client("https://fortnite-api.com");
+	client.set_follow_location(true);
+
+	std::string route = "/v2/cosmetics/br/search?id=" + PickaxeID;
+
+	if (auto response = client.Get(route.c_str()))
+	{		
+		if (response->status == 200)
+		{
+			auto Data = nlohmann::json::parse(response->body)["data"];
+			
+			if (!Data.is_null())
+			{
+				std::string WeaponID = Data["definitionPath"].get<std::string>();
+				WeaponID = WeaponID.erase(0, WeaponID.find("WID"));
+
+				auto AssetName = "FortWeaponMeleeItemDefinition " + WeaponID + "." + WeaponID;
+				
+				Weapon = UObject::FindObject<UFortWeaponMeleeItemDefinition>(AssetName);
+			}
+		}
+	}
+
+	FGuid GUID;
+	GUID.A = rand();
+	GUID.B = rand();
+	GUID.C = rand();
+	GUID.D = rand();
+
+	osAthenaPlayerPawn->EquipWeaponDefinition(Weapon, GUID);
 }
 
 /// <summary>

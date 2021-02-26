@@ -59,6 +59,12 @@ namespace Native
 		// Deref if used "(*GWorld)->XXXXXX", Or use GEngine->GameViewport->World
 		GWorld = reinterpret_cast<UWorld**>(ModuleBase + Offsets::UWorldOffset);
 
+		*(char*)(ModuleBase + 0xAEC475 + 0) = 0xE9;
+		*(char*)(ModuleBase + 0xAEC475 + 1) = 0x39;
+		*(char*)(ModuleBase + 0xAEC475 + 2) = 0x02;
+		*(char*)(ModuleBase + 0xAEC475 + 3) = 0x00;
+		*(char*)(ModuleBase + 0xAEC475 + 4) = 0x00;
+
 		StaticConstructObject = decltype(StaticConstructObject)(ModuleBase + Offsets::StaticConstructObjectOffset);
 
 		if (InitPEH())

@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include "framework.h"
-#include "globals.h"
 #include "curl.h"
 #include "World.h"
+#include "globals.h"
+#include "framework.h"
 
 //Used to log processevent
 #ifndef _PROD
@@ -36,8 +36,8 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 
 			auto FortAnimInstance = static_cast<UFortAnimInstance*>(osWorld->osAthenaPlayerPawn->Mesh->GetAnimInstance());
 
-			if (FortAnimInstance->bIsJumping || FortAnimInstance->bIsFalling ||
-				osWorld->osAthenaPlayerPawn->bIsCrouched || osFortPlayerController->bIsPlayerActivelyMoving)
+			if (FortAnimInstance && (FortAnimInstance->bIsJumping || FortAnimInstance->bIsFalling ||
+				osWorld->osAthenaPlayerPawn->bIsCrouched || osFortPlayerController->bIsPlayerActivelyMoving))
 			{
 				auto CurrentMontage = FortAnimInstance->GetCurrentActiveMontage();
 
@@ -73,7 +73,18 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 				}
 			}
 			else osWorld->bHasJumped = false;
+
+			if (GetAsyncKeyState(VK_F10))
+			{
+				auto Location = osWorld->osAthenaPlayerPawn->K2_GetActorLocation();
+
+				auto LocationString = "X: " + std::to_string(Location.X) + "\nY: " + std::to_string(Location.Y) + "\nZ: " + std::to_string(Location.Z);
+
+				MessageBoxA(nullptr, LocationString.c_str(), "K2_GetActorLocation", MB_OK);
+			}
 		}
+
+		goto out;
 	}
 
 	if (gUrl.find("matchmakingservice") != std::string::npos)
@@ -86,14 +97,23 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 	}
 
 	if (nFunc == "ReadyToStartMatch" && osWorldStatus == EWorldStatus::InLobby)
+	{
 		osWorld = new osmium::World();
+
+		goto out;
+	}
 
 	if (nFunc == "ServerAttemptAircraftJump" || nFunc == "OnAircraftExitedDropZone")
 	{
 		auto AthenaPlayerController = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController);
 		if (AthenaPlayerController->IsInAircraft()) 
 			osWorld->Respawn();
+
+		goto out;
 	}
+
+	if (nFunc == "OnLanded" && nObj == "PlayerPawn_Athena_C_2")
+		osWorld->EquipPickaxe();
 
 	if (nFunc == "ServerPlayEmoteItem")
 	{
@@ -110,10 +130,9 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 			auto AnimInstance = static_cast<AFortPlayerPawnAthena*>(osmium::World::FindActor(AFortPlayerPawnAthena::StaticClass()))->Mesh->GetAnimInstance();
 			AnimInstance->Montage_Play(Montage, 1, EMontagePlayReturnType::Duration, 0, true);
 		}
-	}
 
-	if (nObj == "PlayerPawn_Athena_C_2" && nFunc == "OnLanded")
-		osWorld->Respawn();
+		goto out;
+	}
 
 	if (nFunc == "CheatScript")
 	{
@@ -148,8 +167,6 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 		goto out;
 	}
 
-	if (nFunc == "ServerAttemptInteract") 
-		return nullptr;
 out:
 #ifdef LOGGING
 	if (nFunc != "EvaluateGraphExposedInputs" &&
