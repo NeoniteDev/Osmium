@@ -25,6 +25,8 @@ namespace Native
 
 		// Assign the CheatManager to the PlayerController.
 		PlayerController->CheatManager = static_cast<UCheatManager*>(CheatManager);
+
+		printf("LogOsmium: Assigned constructed cheat manager to player controller\n");
 	}
 
 	/// <summary>
@@ -43,6 +45,8 @@ namespace Native
 		// Assign the constructed console to the GameViewports' ViewportConsole.
 		GEngine->GameViewport->ViewportConsole = static_cast<UConsole*>(Console);
 
+		printf("LogOsmium: Assigned constructed console to viewport console\n");
+
 		// Initialize CheatManager for the player.
 		InitCheatManager();
 	}
@@ -55,9 +59,6 @@ namespace Native
 		const auto ModuleBase = Util::BaseAddress();
 
 		GEngine = *reinterpret_cast<UEngine**>(ModuleBase + Offsets::UEngineOffset);
-
-		// Deref if used "(*GWorld)->XXXXXX", Or use GEngine->GameViewport->World
-		GWorld = reinterpret_cast<UWorld**>(ModuleBase + Offsets::UWorldOffset);
 
 		*(char*)(ModuleBase + 0xAEC475 + 0) = 0xE9;
 		*(char*)(ModuleBase + 0xAEC475 + 1) = 0x39;

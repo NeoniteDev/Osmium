@@ -27,14 +27,13 @@ namespace Strings
 	}
 	namespace cURL
 	{
-		constexpr const char* HostURL = "http://localhost:5595";
-		//constexpr const char* HostURL = "https://aurora-staging-api-2.slushia.dev";
+		//constexpr const char* HostURL = "http://localhost:5595";
+		constexpr const char* HostURL = "https://aurora-staging-api-2.slushia.dev";
 	}
 }
 
 namespace Offsets
 {
-	constexpr const auto UWorldOffset = 0x4FC3160;
 	constexpr const auto UEngineOffset = 0x4FC15D8;
 	constexpr const auto ProcessEventOffset = 0x158FB20;
 	constexpr const auto StaticConstructObjectOffset = 0x15B5410;

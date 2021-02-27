@@ -3,6 +3,7 @@
 #include "World.h"
 #include "globals.h"
 #include "framework.h"
+#include "util.h"
 
 //Used to log processevent
 #ifndef _PROD
@@ -96,6 +97,7 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 
 					log << object->GetFullName() + "\n";
 				}
+				printf("LogOsmium: Dumped GObjects to gobjects.log\n");
 			}
 			else if (ScriptName == "event")
 			{
@@ -104,6 +106,8 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 				auto EventPlayer = UObject::FindObject<ULevelSequencePlayer>(
 					"LevelSequencePlayer Athena_Gameplay_Geode.Athena_Gameplay_Geode.PersistentLevel.LevelSequence_LaunchRocket.AnimationPlayer");
 				EventPlayer->Play();
+
+				printf("LogOsmium: Started event\n");
 			}
 		}
 		goto out;
@@ -147,18 +151,19 @@ out:
 inline bool InitPEH()
 {
 	const auto ProcessEventAdd = osmium::Util::BaseAddress() + Offsets::ProcessEventOffset;
-
 	ProcessEvent = decltype(ProcessEvent)(ProcessEventAdd);
 
 	DetourTransactionBegin();
-
 	DetourAttach(reinterpret_cast<void**>(&ProcessEvent), ProcessEventDetour);
-
 	const auto error = DetourTransactionCommit();
 
-	if (error == NO_ERROR) return true;
+	if (error == NO_ERROR)
+	{
+		printf("LogOsmium: ProcessEvent hook initiated\n");
+		return true;
+	}
 
-	MessageBoxA(nullptr, "Couldn't hook process event", "Osmium", MB_OK);
-
+	printf("LogOsmium: ProcessEvent hook failed\n");
+	MessageBoxA(nullptr, "ProcessEvent hook failed", "Osmium", MB_OK);
 	return false;
 }

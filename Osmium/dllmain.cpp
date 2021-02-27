@@ -17,6 +17,7 @@ void WINAPI dllMain()
 		if (osWorldStatus == EWorldStatus::InLobby)
 		{
 			Native::Init();
+			printf("LogOsmium: Player in lobby, ready to start\n");
 			break;
 		}
 		

@@ -10,6 +10,7 @@ using namespace osmium;
 /// </summary>
 World::World()
 {
+	printf("LogOsmium: Constructing world\n");
 	osWorldStatus = EWorldStatus::Constructing;
 
 	osPlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
@@ -27,10 +28,12 @@ World::World()
 	auto AthenaGameState = static_cast<AFortGameStateAthena*>(GEngine->GameViewport->World->GameState);
 	AthenaGameState->CurrentPlaylistData = Playlist;
 	AthenaGameState->OnRep_CurrentPlaylistData();
+	printf("LogOsmium: Current playlist set to Playlist_DefaultSolo\n");
 
 	AthenaGameState->TotalPlayers = 1;
 	AthenaGameState->PlayersLeft = 1;
 
+	printf("LogOsmium: Starting match\n");
 	osFortPlayerController->ServerReadyToStartMatch();
 	auto GameMode = reinterpret_cast<AGameMode*>(GEngine->GameViewport->World->AuthorityGameMode);
 	GameMode->StartMatch();
@@ -63,8 +66,10 @@ auto World::Spawn() -> void
 	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
 	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(FindActor(AFortPlayerPawnAthena::StaticClass()));
 	osPlayerController->Possess(osAthenaPlayerPawn);
+	printf("LogOsmium: AthenaPlayerPawn summoned and possessed\n");
 
 	osPlayerController->CheatManager->God();
+	printf("LogOsmium: PlayerController now has god-mode\n");
 
 	auto Location = osAthenaPlayerPawn->K2_GetActorLocation();
 	Location.X = -127500;
@@ -77,6 +82,7 @@ auto World::Spawn() -> void
 	Rotation.Roll = 0;
 
 	osAthenaPlayerPawn->K2_SetActorLocationAndRotation(Location, Rotation, false, true, new FHitResult());
+	printf("LogOsmium: Set AthenaPlayerPawn's location to spawn-island\n");
 
 	auto AthenaPlayerController = reinterpret_cast<AFortPlayerControllerAthena*>(osPlayerController);
 	auto AthenaPlayerState = reinterpret_cast<AFortPlayerStateAthena*>(osAthenaPlayerPawn->PlayerState);
@@ -117,6 +123,8 @@ auto World::Spawn() -> void
 	AthenaPlayerState->OnRep_CharacterParts();
 	osAthenaPlayerPawn->OnRep_CustomizationLoadout();
 
+	printf("LogOsmium: Added character parts and customization loadout\n");
+
 	EquipPickaxe();
 }
 
@@ -128,6 +136,8 @@ auto World::Respawn() -> void
 	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
 	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(FindActor(AFortPlayerPawnAthena::StaticClass()));
 	osPlayerController->Possess(osAthenaPlayerPawn);
+
+	printf("LogOsmium: Respawned player\n");
 }
 
 auto World::Tick() -> void
@@ -201,6 +211,8 @@ auto World::EquipPickaxe() -> void
 
 		osAthenaPlayerPawn->EquipWeaponDefinition(osPickaxe, GUID);
 
+		printf("LogOsmium: Equipped pickaxe %s\n", PickaxeID.c_str());
+
 		return;
 	}
 
@@ -236,6 +248,8 @@ auto World::EquipPickaxe() -> void
 	GUID.D = rand();
 
 	osAthenaPlayerPawn->EquipWeaponDefinition(osPickaxe, GUID);
+
+	printf("LogOsmium: Equipped pickaxe %s\n", PickaxeID.c_str());
 }
 
 /// <summary>

@@ -4,7 +4,6 @@
 inline osmium::World* osWorld;
 inline EWorldStatus osWorldStatus;
 
-inline UWorld** GWorld;
 inline UEngine* GEngine;
 inline UObject* (*StaticConstructObject)(
 	UClass* Class,

@@ -77,5 +77,7 @@ namespace osmium
 		VALIDATE_ADDRESS(pcURLEasySetoptAddress, "Finding pattern for cURLEasySetopt has failed, exiting immediately!\n")
 
 		VEH::EnableHook(pcURLEasySetoptAddress, cURLEasySetopt);
+
+		printf("LogOsmium: cURLEasySetopt hook initiated\n");
 	}
 }
