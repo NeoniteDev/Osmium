@@ -49,7 +49,7 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>.\minhook;$(IncludePath)</IncludePath>
     <LibraryPath>.\minhook;$(LibraryPath)</LibraryPath>
-    <TargetName>Aurora.Runtime</TargetName>
+    <TargetName>Osmium</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release [Prod]|x64'">
     <LinkIncremental>false</LinkIncremental>
