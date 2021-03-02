@@ -90,8 +90,7 @@ auto World::Spawn() -> void
 	std::vector<UCustomCharacterPart*> CharPartsArray;
 
 	auto HeroCharParts = AthenaPlayerController->StrongMyHero->CharacterParts;
-	for (auto i = 0; i < HeroCharParts.Num(); i++) 
-		CharPartsArray.push_back(HeroCharParts[i]);
+	for (auto i = 0; i < HeroCharParts.Num(); i++) CharPartsArray.push_back(HeroCharParts[i]);
 
 	auto Backpack = AthenaPlayerController->CustomizationLoadout.Backpack;
 
@@ -102,22 +101,20 @@ auto World::Spawn() -> void
 			auto BackpackCharPart = Backpack->GetCharacterParts()[0];
 			CharPartsArray.push_back(BackpackCharPart);
 		}
-		catch (...) { }
+		catch (...)
+		{
+		}
 	}
 
 	for (auto i = 0; i < CharPartsArray.size(); i++)
 	{
-		if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHeadData::StaticClass())) 
-			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Head, CharPartsArray[i]);
+		if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHeadData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Head, CharPartsArray[i]);
 
-		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBodyPartData::StaticClass())) 
-			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Body, CharPartsArray[i]);
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBodyPartData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Body, CharPartsArray[i]);
 
-		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHatData::StaticClass())) 
-			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Hat, CharPartsArray[i]);
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHatData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Hat, CharPartsArray[i]);
 
-		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBackpackData::StaticClass())) 
-			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Backpack, CharPartsArray[i]);
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBackpackData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Backpack, CharPartsArray[i]);
 	}
 
 	AthenaPlayerState->OnRep_CharacterParts();
@@ -130,8 +127,7 @@ auto World::Spawn() -> void
 
 auto World::Respawn() -> void
 {
-	if (osAthenaPlayerPawn)
-		osAthenaPlayerPawn->K2_DestroyActor();
+	if (osAthenaPlayerPawn) osAthenaPlayerPawn->K2_DestroyActor();
 
 	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
 	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(FindActor(AFortPlayerPawnAthena::StaticClass()));
@@ -144,14 +140,11 @@ auto World::Tick() -> void
 {
 	if (osWorldStatus == EWorldStatus::InGame)
 	{
-		if (!osFortPlayerController) 
-			osFortPlayerController = static_cast<AFortPlayerController*>(osPlayerController);
+		if (!osFortPlayerController) osFortPlayerController = static_cast<AFortPlayerController*>(osPlayerController);
 
-		if (!osAthenaPlayerPawn) 
-			osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(osFortPlayerController->Pawn);
+		if (!osAthenaPlayerPawn) osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(osFortPlayerController->Pawn);
 
-		if (!osFortPlayerControllerAthena) 
-			osFortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(osFortPlayerController);
+		if (!osFortPlayerControllerAthena) osFortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(osFortPlayerController);
 
 		osFortAnimInstance = static_cast<UFortAnimInstance*>(osAthenaPlayerPawn->Mesh->GetAnimInstance());
 
@@ -161,11 +154,11 @@ auto World::Tick() -> void
 			auto CurrentMontage = osFortAnimInstance->GetCurrentActiveMontage();
 
 			if (CurrentMontage && (CurrentMontage->GetName().starts_with("Emote_") || CurrentMontage->GetName().starts_with("Basketball_CMM")))
-				osAthenaPlayerPawn->ServerRootMotionInterruptNotifyStopMontage(CurrentMontage);
+				osAthenaPlayerPawn->
+				ServerRootMotionInterruptNotifyStopMontage(CurrentMontage);
 		}
 
-		if (!osAthenaPlayerPawn->CurrentWeapon && !osFortPlayerControllerAthena->IsInAircraft())
-			EquipPickaxe();
+		if (!osAthenaPlayerPawn->CurrentWeapon && !osFortPlayerControllerAthena->IsInAircraft()) EquipPickaxe();
 
 		bool bWantsToSprint = osFortPlayerController->bWantsToSprint;
 		osAthenaPlayerPawn->CurrentMovementStyle = bWantsToSprint ? EFortMovementStyle::Charging : EFortMovementStyle::Sprinting;
@@ -178,16 +171,13 @@ auto World::Tick() -> void
 				{
 					if (!osAthenaPlayerPawn->IsParachuteForcedOpen())
 					{
-						if (osAthenaPlayerPawn->IsSkydiving() && !osAthenaPlayerPawn->IsParachuteOpen())
-							osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 3);
-						else if (osAthenaPlayerPawn->IsParachuteOpen())
-							osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 4);
+						if (osAthenaPlayerPawn->IsSkydiving() && !osAthenaPlayerPawn->IsParachuteOpen()) osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 3);
+						else if (osAthenaPlayerPawn->IsParachuteOpen()) osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 4);
 
 						osAthenaPlayerPawn->OnRep_IsParachuteOpen(osAthenaPlayerPawn->IsParachuteOpen());
 					}
 
-					if (!osAthenaPlayerPawn->IsSkydiving() || osAthenaPlayerPawn->IsParachuteOpen())
-						osAthenaPlayerPawn->Jump();
+					if (!osAthenaPlayerPawn->IsSkydiving() || osAthenaPlayerPawn->IsParachuteOpen()) osAthenaPlayerPawn->Jump();
 				}
 
 				bHasJumped = true;
@@ -204,12 +194,13 @@ auto World::EquipPickaxe() -> void
 	if (osPickaxe)
 	{
 		FGuid GUID;
-		GUID.A = rand();
-		GUID.B = rand();
-		GUID.C = rand();
-		GUID.D = rand();
+		GUID.A = 0;
+		GUID.B = 0;
+		GUID.C = 0;
+		GUID.D = 0;
 
 		osAthenaPlayerPawn->EquipWeaponDefinition(osPickaxe, GUID);
+
 
 		printf("LogOsmium: Equipped pickaxe %s\n", PickaxeID.c_str());
 
@@ -242,12 +233,12 @@ auto World::EquipPickaxe() -> void
 	}
 
 	FGuid GUID;
-	GUID.A = rand();
-	GUID.B = rand();
-	GUID.C = rand();
-	GUID.D = rand();
+	GUID.A = 0;
+	GUID.B = 0;
+	GUID.C = 0;
+	GUID.D = 0;
 
-	osAthenaPlayerPawn->EquipWeaponDefinition(osPickaxe, GUID);
+	auto Weapon = osAthenaPlayerPawn->EquipWeaponDefinition(osPickaxe, GUID);
 
 	printf("LogOsmium: Equipped pickaxe %s\n", PickaxeID.c_str());
 }

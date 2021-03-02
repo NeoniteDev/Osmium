@@ -44,6 +44,15 @@
     <ClCompile Include="SDK\FN_MovieScene_functions.cpp">
       <Filter>SDK</Filter>
     </ClCompile>
+    <ClCompile Include="SDK\FN_UMG_functions.cpp">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="SDK\FN_FortniteUI_functions.cpp">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="SDK\FN_ItemInspectAlterationModOptInScreen_functions.cpp">
+      <Filter>SDK</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="util.h">

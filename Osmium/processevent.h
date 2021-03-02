@@ -52,8 +52,7 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 	if (nFunc == "ServerAttemptAircraftJump" || nFunc == "OnAircraftExitedDropZone")
 	{
 		auto AthenaPlayerController = static_cast<AFortPlayerControllerAthena*>(osWorld->osPlayerController);
-		if (AthenaPlayerController->IsInAircraft()) 
-			osWorld->Respawn();
+		if (AthenaPlayerController->IsInAircraft()) osWorld->Respawn();
 
 		goto out;
 	}
@@ -64,8 +63,7 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 
 		if (!FortAnimInstance->bIsJumping && !FortAnimInstance->bIsFalling && !osWorld->osFortPlayerController->bIsPlayerActivelyMoving)
 		{
-			if (osWorld->osAthenaPlayerPawn->bIsCrouched)
-				osWorld->osAthenaPlayerPawn->UnCrouch(true);
+			if (osWorld->osAthenaPlayerPawn->bIsCrouched) osWorld->osAthenaPlayerPawn->UnCrouch(true);
 
 			auto EmoteAsset = static_cast<AFortPlayerController_ServerPlayEmoteItem_Params*>(pParams)->EmoteAsset;
 			auto Montage = EmoteAsset->GetAnimationHardReference(EFortCustomBodyType::All, EFortCustomGender::Both);
@@ -108,6 +106,35 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 				EventPlayer->Play();
 
 				printf("LogOsmium: Started event\n");
+			}
+			else if (ScriptName == "test")
+			{
+				auto Hud = UObject::FindObject<UAthenaHUD_C>("AthenaHUD_C Transient.FortEngine_1.FortGameInstance_1.AthenaHUD_C_1");
+
+				FLinearColor WeaponColor{
+					100, 100, 100, 100
+				};
+
+				if (Hud)
+				{
+					auto FortRarityData = UObject::FindObject<UFortRarityData>("FortRarityData FortniteGame.Default__FortRarityData");
+					auto Rarity = FortRarityData->STATIC_BPGetRarityData(osWorld->osPickaxe->Rarity);
+
+					auto IIAMOPIS = UObject::FindObject<UItemInspectAlterationModOptInScreen_C>(
+						"ItemInspectAlterationModOptInScreen_C ItemInspectAlterationModOptInScreen.WidgetArchetype");
+
+					IIAMOPIS->SetupTriangles(Rarity);
+
+					auto Brush = IIAMOPIS->TriangleMaterial->Brush;
+					auto Color = IIAMOPIS->TriangleMaterial->ColorAndOpacity;
+					Color.A = 1;
+
+					Hud->QuickbarPrimary->QuickbarSlots[0]->EmptyImage->SetBrush(Brush);
+					Hud->QuickbarPrimary->QuickbarSlots[0]->EmptyImage->SetColorAndOpacity(Color);
+
+					Hud->QuickbarPrimary->QuickbarSlots[0]->SlotInteraction->SetBrushFromTexture(osWorld->osPickaxe->SmallPreviewImage, true);
+					Hud->QuickbarPrimary->QuickbarSlots[0]->SlotInteraction->SetColorAndOpacity(WeaponColor);
+				}
 			}
 		}
 		goto out;
