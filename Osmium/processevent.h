@@ -109,10 +109,11 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 			}
 			else if (ScriptName == "test")
 			{
+				//TODO: move this to be auto called after loading screen is dropped.
 				auto Hud = UObject::FindObject<UAthenaHUD_C>("AthenaHUD_C Transient.FortEngine_1.FortGameInstance_1.AthenaHUD_C_1");
 
 				FLinearColor WeaponColor{
-					100, 100, 100, 100
+					60, 170, 50, 1
 				};
 
 				if (Hud)
@@ -120,18 +121,20 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 					auto FortRarityData = UObject::FindObject<UFortRarityData>("FortRarityData FortniteGame.Default__FortRarityData");
 					auto Rarity = FortRarityData->STATIC_BPGetRarityData(osWorld->osPickaxe->Rarity);
 
+					//Inappropriate way to do but you can't construct an brush, maybe there's some solid brush somewhere (possible grab map white one and set it's colors)
 					auto IIAMOPIS = UObject::FindObject<UItemInspectAlterationModOptInScreen_C>(
 						"ItemInspectAlterationModOptInScreen_C ItemInspectAlterationModOptInScreen.WidgetArchetype");
+					
+					IIAMOPIS->Set_Up_Header_Colors(Rarity);
 
-					IIAMOPIS->SetupTriangles(Rarity);
-
-					auto Brush = IIAMOPIS->TriangleMaterial->Brush;
-					auto Color = IIAMOPIS->TriangleMaterial->ColorAndOpacity;
-					Color.A = 1;
+					//Colors change but it doesn't match the rarity color some how
+					auto Brush = IIAMOPIS->HeaderGrid->Brush;
+					auto Color = IIAMOPIS->HeaderGrid->ColorAndOpacity;
 
 					Hud->QuickbarPrimary->QuickbarSlots[0]->EmptyImage->SetBrush(Brush);
 					Hud->QuickbarPrimary->QuickbarSlots[0]->EmptyImage->SetColorAndOpacity(Color);
 
+					//Doesn't work sice the slot isn't selected (should be fixable)
 					Hud->QuickbarPrimary->QuickbarSlots[0]->SlotInteraction->SetBrushFromTexture(osWorld->osPickaxe->SmallPreviewImage, true);
 					Hud->QuickbarPrimary->QuickbarSlots[0]->SlotInteraction->SetColorAndOpacity(WeaponColor);
 				}
