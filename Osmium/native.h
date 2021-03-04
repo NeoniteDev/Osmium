@@ -38,7 +38,7 @@ namespace Native
 		UObject* Console = StaticConstructObject(
 			GEngine->ConsoleClass,
 			GEngine->GameViewport,
-			nullptr, 0, 0, nullptr, 
+			nullptr, 0, 0, nullptr,
 			false, nullptr, false
 		);
 
@@ -60,15 +60,22 @@ namespace Native
 
 		GEngine = *reinterpret_cast<UEngine**>(ModuleBase + Offsets::UEngineOffset);
 
-		*(char*)(ModuleBase + 0xAEC475 + 0) = 0xE9;
-		*(char*)(ModuleBase + 0xAEC475 + 1) = 0x39;
-		*(char*)(ModuleBase + 0xAEC475 + 2) = 0x02;
-		*(char*)(ModuleBase + 0xAEC475 + 3) = 0x00;
-		*(char*)(ModuleBase + 0xAEC475 + 4) = 0x00;
-
 		StaticConstructObject = decltype(StaticConstructObject)(ModuleBase + Offsets::StaticConstructObjectOffset);
 
-		if (InitPEH())
-			UnlockConsole();
+		//Crash fix
+		*reinterpret_cast<char*>(ModuleBase + 0xAEC475 + 0) = 0xE9;
+		*reinterpret_cast<char*>(ModuleBase + 0xAEC475 + 1) = 0x39;
+		*reinterpret_cast<char*>(ModuleBase + 0xAEC475 + 2) = 0x02;
+		*reinterpret_cast<char*>(ModuleBase + 0xAEC475 + 3) = 0x00;
+		*reinterpret_cast<char*>(ModuleBase + 0xAEC475 + 4) = 0x00;
+
+		//Weapons patch
+		const auto AbilityPatchAdd = Util::FindPattern(Patterns::bGlobal::AbilityPatch, Masks::bGlobal::AbilityPatch);
+		VALIDATE_ADDRESS(AbilityPatchAdd, "Failed to find AbilityPatch Address.");
+
+		reinterpret_cast<uint8_t*>(AbilityPatchAdd)[2] = 0x85;
+		reinterpret_cast<uint8_t*>(AbilityPatchAdd)[11] = 0x8D;
+
+		if (InitPEH()) UnlockConsole();
 	}
 }
