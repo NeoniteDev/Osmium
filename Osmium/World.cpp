@@ -14,7 +14,6 @@ World::World()
 	osWorldStatus = EWorldStatus::Constructing;
 
 	osPlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
-
 	osFortPlayerController = reinterpret_cast<AFortPlayerController*>(osPlayerController);
 	osFortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(osFortPlayerController);
 
@@ -24,11 +23,33 @@ World::World()
 
 	Spawn();
 
-	auto Playlist = UObject::FindObject<UFortPlaylistAthena>("FortPlaylistAthena Playlist_DefaultSolo.Playlist_DefaultSolo");
+	auto Playlist = UObject::FindObject<UFortPlaylistAthena>("FortPlaylistAthena Playlist_Playground.Playlist_Playground");
 	auto AthenaGameState = static_cast<AFortGameStateAthena*>(GEngine->GameViewport->World->GameState);
 	AthenaGameState->CurrentPlaylistData = Playlist;
 	AthenaGameState->OnRep_CurrentPlaylistData();
-	printf("LogOsmium: Current playlist set to Playlist_DefaultSolo\n");
+	printf("LogOsmium: Current playlist set to Playlist_Playground\n");
+
+	auto WidgetLibrary = UObject::FindClass("Class UMG.WidgetBlueprintLibrary")->CreateDefaultObject<UWidgetBlueprintLibrary>();
+
+	AthenaGameState->MiniMapBackgroundDrawingMaterial = nullptr;
+	AthenaGameState->MinimapBackgroundImage = UObject::FindObject<UTexture2D>("Texture2D MiniMapAthena.MiniMapAthena");
+	AthenaGameState->MinimapBackgroundBrush = WidgetLibrary->STATIC_MakeBrushFromTexture(AthenaGameState->MinimapBackgroundImage, 2048, 2048);
+
+	FSlateBrush EmptyBrush = WidgetLibrary->STATIC_NoResourceBrush();
+
+	AthenaGameState->MinimapCircleMID = nullptr;
+	AthenaGameState->MinimapNextCircleMID = nullptr;
+	AthenaGameState->FullmapCircleMID = nullptr;
+	AthenaGameState->FullmapNextCircleMID = nullptr;
+	AthenaGameState->MiniMapCircleDrawingMaterial = nullptr;
+	AthenaGameState->MiniMapNextCircleDrawingMaterial = nullptr;
+
+	AthenaGameState->MinimapCircleBrush = EmptyBrush;
+	AthenaGameState->MinimapSafeZoneBrush = EmptyBrush;
+	AthenaGameState->MinimapNextCircleBrush = EmptyBrush;
+	AthenaGameState->FullMapCircleBrush = EmptyBrush;
+	AthenaGameState->FullMapNextCircleBrush = EmptyBrush;
+	AthenaGameState->MinimapSafeZoneFinalPosBrush = EmptyBrush;
 
 	AthenaGameState->TotalPlayers = 1;
 	AthenaGameState->PlayersLeft = 1;
@@ -40,31 +61,33 @@ World::World()
 
 	osWorldStatus = EWorldStatus::InGame;
 
-	UE4_CONSOLE_LOG(L"Osmium by @xkem0x, @DarkbladeEU and @SizzyLeaks.\n Please credit us for our hard work ♥\n Huge thanks to @NotMakks for providing an SDK and crash fixes.");
+	UE4_CONSOLE_LOG(L"Osmium by @xkem0x, @DarkbladeEU and @SizzyLeaks.\nPlease credit us for our hard work ♥\nHuge thanks to @NotMakks for providing an SDK and crash fixes.");
 
 	return;
 }
 
-auto World::FindActor(UClass* pClass) -> UObject*
+auto World::FindActors(UClass* pClass) -> TArray<AActor*>
 {
 	TArray<AActor*> Actors;
 
 	auto GameplayStatics = UGameplayStatics::StaticClass()->CreateDefaultObject<UGameplayStatics>();
 	GameplayStatics->STATIC_GetAllActorsOfClass(GEngine->GameViewport->World, pClass, &Actors);
 
-	if (Actors.Num() > 0)
-	{
-		auto pActor = Actors.operator[](0);
-		if (pActor) return pActor;
-	}
-
-	return nullptr;
+	return Actors;
 }
 
 auto World::Spawn() -> void
 {
 	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
-	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(FindActor(AFortPlayerPawnAthena::StaticClass()));
+
+	auto PlayerPawn = FindActors(AFortPlayerPawnAthena::StaticClass())[0];
+	if (!PlayerPawn)
+	{
+		printf("LogOsmium: Failed to find actors of class AFortPlayerPawnAthena!\n");
+		MessageBoxA(nullptr, "Failed to find AthenaPlayerPawn!", "Osmium", MB_OK);
+	}
+
+	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(PlayerPawn);
 	osPlayerController->Possess(osAthenaPlayerPawn);
 	printf("LogOsmium: AthenaPlayerPawn summoned and possessed\n");
 
@@ -90,7 +113,8 @@ auto World::Spawn() -> void
 	std::vector<UCustomCharacterPart*> CharPartsArray;
 
 	auto HeroCharParts = AthenaPlayerController->StrongMyHero->CharacterParts;
-	for (auto i = 0; i < HeroCharParts.Num(); i++) CharPartsArray.push_back(HeroCharParts[i]);
+	for (auto i = 0; i < HeroCharParts.Num(); i++)
+		CharPartsArray.push_back(HeroCharParts[i]);
 
 	auto Backpack = AthenaPlayerController->CustomizationLoadout.Backpack;
 
@@ -101,20 +125,22 @@ auto World::Spawn() -> void
 			auto BackpackCharPart = Backpack->GetCharacterParts()[0];
 			CharPartsArray.push_back(BackpackCharPart);
 		}
-		catch (...)
-		{
-		}
+		catch (...) {}
 	}
 
 	for (auto i = 0; i < CharPartsArray.size(); i++)
 	{
-		if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHeadData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Head, CharPartsArray[i]);
+		if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHeadData::StaticClass()))
+			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Head, CharPartsArray[i]);
 
-		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBodyPartData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Body, CharPartsArray[i]);
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBodyPartData::StaticClass()))
+			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Body, CharPartsArray[i]);
 
-		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHatData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Hat, CharPartsArray[i]);
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHatData::StaticClass()))
+			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Hat, CharPartsArray[i]);
 
-		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBackpackData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Backpack, CharPartsArray[i]);
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBackpackData::StaticClass()))
+			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Backpack, CharPartsArray[i]);
 	}
 
 	AthenaPlayerState->OnRep_CharacterParts();
@@ -130,7 +156,15 @@ auto World::Respawn() -> void
 	if (osAthenaPlayerPawn) osAthenaPlayerPawn->K2_DestroyActor();
 
 	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
-	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(FindActor(AFortPlayerPawnAthena::StaticClass()));
+
+	auto PlayerPawn = FindActors(AFortPlayerPawnAthena::StaticClass())[0];
+	if (!PlayerPawn)
+	{
+		printf("LogOsmium: Failed to find actors of class AFortPlayerPawnAthena!\n");
+		MessageBoxA(nullptr, "Failed to find AthenaPlayerPawn!", "Osmium", MB_OK);
+	}
+
+	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(PlayerPawn);
 	osPlayerController->Possess(osAthenaPlayerPawn);
 
 	printf("LogOsmium: Respawned player\n");
@@ -140,11 +174,14 @@ auto World::Tick() -> void
 {
 	if (osWorldStatus == EWorldStatus::InGame)
 	{
-		if (!osFortPlayerController) osFortPlayerController = static_cast<AFortPlayerController*>(osPlayerController);
+		if (!osFortPlayerController)
+			osFortPlayerController = static_cast<AFortPlayerController*>(osPlayerController);
 
-		if (!osAthenaPlayerPawn) osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(osFortPlayerController->Pawn);
+		if (!osAthenaPlayerPawn) 
+			osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(osFortPlayerController->Pawn);
 
-		if (!osFortPlayerControllerAthena) osFortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(osFortPlayerController);
+		if (!osFortPlayerControllerAthena) 
+			osFortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(osFortPlayerController);
 
 		osFortAnimInstance = static_cast<UFortAnimInstance*>(osAthenaPlayerPawn->Mesh->GetAnimInstance());
 
@@ -154,11 +191,11 @@ auto World::Tick() -> void
 			auto CurrentMontage = osFortAnimInstance->GetCurrentActiveMontage();
 
 			if (CurrentMontage && (CurrentMontage->GetName().starts_with("Emote_") || CurrentMontage->GetName().starts_with("Basketball_CMM")))
-				osAthenaPlayerPawn->
-				ServerRootMotionInterruptNotifyStopMontage(CurrentMontage);
+				osAthenaPlayerPawn->ServerRootMotionInterruptNotifyStopMontage(CurrentMontage);
 		}
 
-		if (!osAthenaPlayerPawn->CurrentWeapon && !osFortPlayerControllerAthena->IsInAircraft()) EquipPickaxe();
+		if (!osAthenaPlayerPawn->CurrentWeapon && !osFortPlayerControllerAthena->IsInAircraft())
+			EquipPickaxe();
 
 		bool bWantsToSprint = osFortPlayerController->bWantsToSprint;
 		osAthenaPlayerPawn->CurrentMovementStyle = bWantsToSprint ? EFortMovementStyle::Charging : EFortMovementStyle::Sprinting;
@@ -171,13 +208,16 @@ auto World::Tick() -> void
 				{
 					if (!osAthenaPlayerPawn->IsParachuteForcedOpen())
 					{
-						if (osAthenaPlayerPawn->IsSkydiving() && !osAthenaPlayerPawn->IsParachuteOpen()) osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 3);
-						else if (osAthenaPlayerPawn->IsParachuteOpen()) osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 4);
+						if (osAthenaPlayerPawn->IsSkydiving() && !osAthenaPlayerPawn->IsParachuteOpen()) 
+							osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 3);
+						else if (osAthenaPlayerPawn->IsParachuteOpen()) 
+							osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 4);
 
 						osAthenaPlayerPawn->OnRep_IsParachuteOpen(osAthenaPlayerPawn->IsParachuteOpen());
 					}
 
-					if (!osAthenaPlayerPawn->IsSkydiving() || osAthenaPlayerPawn->IsParachuteOpen()) osAthenaPlayerPawn->Jump();
+					if (!osAthenaPlayerPawn->IsSkydiving() || osAthenaPlayerPawn->IsParachuteOpen())
+						osAthenaPlayerPawn->Jump();
 				}
 
 				bHasJumped = true;
@@ -200,7 +240,6 @@ auto World::EquipPickaxe() -> void
 		GUID.D = 0;
 
 		osAthenaPlayerPawn->EquipWeaponDefinition(osPickaxe, GUID);
-
 
 		printf("LogOsmium: Equipped pickaxe %s\n", PickaxeID.c_str());
 
@@ -248,4 +287,5 @@ auto World::EquipPickaxe() -> void
 /// </summary>
 World::~World()
 {
+
 }

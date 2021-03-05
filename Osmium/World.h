@@ -22,7 +22,7 @@ namespace osmium
 		World();
 		~World();
 
-		static UObject* FindActor(UClass* pClass);
+		static TArray<AActor*> FindActors(UClass* pClass);
 
 		void Spawn();
 		void Respawn();
