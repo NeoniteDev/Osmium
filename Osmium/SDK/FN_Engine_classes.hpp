@@ -10178,7 +10178,7 @@ public:
 	void STATIC_Array_Clear(TArray<int> TargetArray);
 	void STATIC_Array_Append(TArray<int> TargetArray, TArray<int> SourceArray);
 	int STATIC_Array_AddUnique(TArray<int> TargetArray, int NewItem);
-	int STATIC_Array_Add(TArray<int> TargetArray, int NewItem);
+	int STATIC_Array_Add(void* TargetArray, void* NewItem);
 };
 
 

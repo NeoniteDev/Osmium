@@ -14,8 +14,8 @@ World::World()
 	osWorldStatus = EWorldStatus::Constructing;
 
 	osPlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
-	osFortPlayerController = reinterpret_cast<AFortPlayerController*>(osPlayerController);
-	osFortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(osFortPlayerController);
+	osFortPlayerController = static_cast<AFortPlayerController*>(osPlayerController);
+	osFortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(osPlayerController);
 
 	Native::InitCheatManager();
 
@@ -85,6 +85,7 @@ auto World::Spawn() -> void
 	{
 		printf("LogOsmium: Failed to find actors of class AFortPlayerPawnAthena!\n");
 		MessageBoxA(nullptr, "Failed to find AthenaPlayerPawn!", "Osmium", MB_OK);
+		return;
 	}
 
 	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(PlayerPawn);
@@ -95,29 +96,24 @@ auto World::Spawn() -> void
 	printf("LogOsmium: PlayerController now has god-mode\n");
 
 	auto Location = osAthenaPlayerPawn->K2_GetActorLocation();
-	Location.X = -127500;
-	Location.Y = -110500;
-	Location.Z = Location.Z + 4000;
-
-	FRotator Rotation;
-	Rotation.Pitch = 0;
-	Rotation.Yaw = 0;
-	Rotation.Roll = 0;
+	FRotator Rotation
+	{
+		0, 0, 0
+	};
 
 	osAthenaPlayerPawn->K2_SetActorLocationAndRotation(Location, Rotation, false, true, new FHitResult());
 	printf("LogOsmium: Set AthenaPlayerPawn's location to spawn-island\n");
 
-	auto AthenaPlayerController = reinterpret_cast<AFortPlayerControllerAthena*>(osPlayerController);
+	osFortPlayerControllerAthena = reinterpret_cast<AFortPlayerControllerAthena*>(osPlayerController);
 	auto AthenaPlayerState = reinterpret_cast<AFortPlayerStateAthena*>(osAthenaPlayerPawn->PlayerState);
 
 	std::vector<UCustomCharacterPart*> CharPartsArray;
 
-	auto HeroCharParts = AthenaPlayerController->StrongMyHero->CharacterParts;
+	auto HeroCharParts = osFortPlayerControllerAthena->StrongMyHero->CharacterParts;
 	for (auto i = 0; i < HeroCharParts.Num(); i++)
 		CharPartsArray.push_back(HeroCharParts[i]);
 
-	auto Backpack = AthenaPlayerController->CustomizationLoadout.Backpack;
-
+	auto Backpack = osFortPlayerControllerAthena->CustomizationLoadout.Backpack;
 	if (Backpack)
 	{
 		try
@@ -125,7 +121,7 @@ auto World::Spawn() -> void
 			auto BackpackCharPart = Backpack->GetCharacterParts()[0];
 			CharPartsArray.push_back(BackpackCharPart);
 		}
-		catch (...) {}
+		catch (...) { }
 	}
 
 	for (auto i = 0; i < CharPartsArray.size(); i++)
@@ -162,6 +158,7 @@ auto World::Respawn() -> void
 	{
 		printf("LogOsmium: Failed to find actors of class AFortPlayerPawnAthena!\n");
 		MessageBoxA(nullptr, "Failed to find AthenaPlayerPawn!", "Osmium", MB_OK);
+		return;
 	}
 
 	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(PlayerPawn);
@@ -181,15 +178,13 @@ auto World::Tick() -> void
 			osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(osFortPlayerController->Pawn);
 
 		if (!osFortPlayerControllerAthena) 
-			osFortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(osFortPlayerController);
+			osFortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(osPlayerController);
 
 		osFortAnimInstance = static_cast<UFortAnimInstance*>(osAthenaPlayerPawn->Mesh->GetAnimInstance());
-
-		if (!osFortPlayerControllerAthena->IsInAircraft() && !osAthenaPlayerPawn->IsSkydiving() && osFortAnimInstance &&
+		if (osFortPlayerControllerAthena && osAthenaPlayerPawn && osFortAnimInstance && !osFortPlayerControllerAthena->IsInAircraft() && !osAthenaPlayerPawn->IsSkydiving() &&
 			(osAthenaPlayerPawn->bIsCrouched || osFortPlayerController->bIsPlayerActivelyMoving || osFortAnimInstance->bIsJumping || osFortAnimInstance->bIsFalling))
 		{
 			auto CurrentMontage = osFortAnimInstance->GetCurrentActiveMontage();
-
 			if (CurrentMontage && (CurrentMontage->GetName().starts_with("Emote_") || CurrentMontage->GetName().starts_with("Basketball_CMM")))
 				osAthenaPlayerPawn->ServerRootMotionInterruptNotifyStopMontage(CurrentMontage);
 		}
@@ -209,9 +204,9 @@ auto World::Tick() -> void
 					if (!osAthenaPlayerPawn->IsParachuteForcedOpen())
 					{
 						if (osAthenaPlayerPawn->IsSkydiving() && !osAthenaPlayerPawn->IsParachuteOpen()) 
-							osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 3);
+							osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 3);
 						else if (osAthenaPlayerPawn->IsParachuteOpen()) 
-							osAthenaPlayerPawn->CharacterMovement->SetMovementMode(SDK::EMovementMode::MOVE_Custom, 4);
+							osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 4);
 
 						osAthenaPlayerPawn->OnRep_IsParachuteOpen(osAthenaPlayerPawn->IsParachuteOpen());
 					}
@@ -223,7 +218,8 @@ auto World::Tick() -> void
 				bHasJumped = true;
 			}
 		}
-		else bHasJumped = false;
+		else 
+			bHasJumped = false;
 	}
 }
 
@@ -233,11 +229,10 @@ auto World::EquipPickaxe() -> void
 
 	if (osPickaxe)
 	{
-		FGuid GUID;
-		GUID.A = 0;
-		GUID.B = 0;
-		GUID.C = 0;
-		GUID.D = 0;
+		FGuid GUID
+		{
+			0, 0, 0, 0
+		};
 
 		osAthenaPlayerPawn->EquipWeaponDefinition(osPickaxe, GUID);
 
@@ -271,11 +266,10 @@ auto World::EquipPickaxe() -> void
 		}
 	}
 
-	FGuid GUID;
-	GUID.A = 0;
-	GUID.B = 0;
-	GUID.C = 0;
-	GUID.D = 0;
+	FGuid GUID
+	{
+		0, 0, 0, 0
+	};
 
 	auto Weapon = osAthenaPlayerPawn->EquipWeaponDefinition(osPickaxe, GUID);
 

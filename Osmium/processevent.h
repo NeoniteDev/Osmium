@@ -39,6 +39,7 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 
 		auto PlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
 		PlayerController->SwitchLevel(Strings::Maps::AthenaTerrain);
+
 		goto out;
 	}
 
@@ -80,11 +81,6 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
         //TODO: move this to be auto called after loading screen is dropped.
         auto Hud = UObject::FindObject<UAthenaHUD_C>("AthenaHUD_C Transient.FortEngine_1.FortGameInstance_1.AthenaHUD_C_1");
     
-        FLinearColor WeaponColor
-        {
-            60, 170, 50, 1
-        };
-    
         if (Hud)
         {
             auto FortRarityData = UObject::FindObject<UFortRarityData>("FortRarityData FortniteGame.Default__FortRarityData");
@@ -103,6 +99,11 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
             Hud->QuickbarPrimary->QuickbarSlots[0]->EmptyImage->SetBrush(Brush);
             Hud->QuickbarPrimary->QuickbarSlots[0]->EmptyImage->SetColorAndOpacity(Color);
     
+			FLinearColor WeaponColor
+			{
+				60, 170, 50, 1
+			};
+
             //Doesn't work sice the slot isn't selected (should be fixable)
             Hud->QuickbarPrimary->QuickbarSlots[0]->SlotInteraction->SetBrushFromTexture(osWorld->osPickaxe->SmallPreviewImage, true);
             Hud->QuickbarPrimary->QuickbarSlots[0]->SlotInteraction->SetColorAndOpacity(WeaponColor);
@@ -131,13 +132,14 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 
 			if (ScriptName == "dump")
 			{
-				std::ofstream log("gobjects.log");
+				std::ofstream log("GObjects.log");
 
 				for (int i = 0; i < UObject::GetGlobalObjects().Num(); ++i)
 				{
 					auto object = UObject::GetGlobalObjects().GetByIndex(i);
 
-					if (object == nullptr) continue;
+					if (object == nullptr) 
+						continue;
 
 					log << object->GetFullName() + "\n";
 				}

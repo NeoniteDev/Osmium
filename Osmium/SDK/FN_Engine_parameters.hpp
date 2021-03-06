@@ -11208,8 +11208,8 @@ struct UKismetArrayLibrary_Array_AddUnique_Params
 // Function Engine.KismetArrayLibrary.Array_Add
 struct UKismetArrayLibrary_Array_Add_Params
 {
-	TArray<int>                                        TargetArray;                                              // (ConstParm, Parm, OutParm, ZeroConstructor, ReferenceParm)
-	int                                                NewItem;                                                  // (ConstParm, Parm, OutParm, ZeroConstructor, ReferenceParm, IsPlainOldData)
+	void*                                              TargetArray;                                              // (ConstParm, Parm, OutParm, ZeroConstructor, ReferenceParm)
+	void*                                              NewItem;                                                  // (ConstParm, Parm, OutParm, ZeroConstructor, ReferenceParm, IsPlainOldData)
 	int                                                ReturnValue;                                              // (Parm, OutParm, ZeroConstructor, ReturnParm, IsPlainOldData)
 };
 

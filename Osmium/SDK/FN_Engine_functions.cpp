@@ -37455,7 +37455,7 @@ int UKismetArrayLibrary::STATIC_Array_AddUnique(TArray<int> TargetArray, int New
 // int                            NewItem                        (ConstParm, Parm, OutParm, ZeroConstructor, ReferenceParm, IsPlainOldData)
 // int                            ReturnValue                    (Parm, OutParm, ZeroConstructor, ReturnParm, IsPlainOldData)
 
-int UKismetArrayLibrary::STATIC_Array_Add(TArray<int> TargetArray, int NewItem)
+int UKismetArrayLibrary::STATIC_Array_Add(void* TargetArray, void* NewItem)
 {
 	static auto fn = UObject::FindObject<UFunction>("Function Engine.KismetArrayLibrary.Array_Add");
 
