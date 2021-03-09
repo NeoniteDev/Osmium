@@ -85,7 +85,7 @@ auto World::Spawn() -> void
 	{
 		printf("LogOsmium: Failed to find actors of class AFortPlayerPawnAthena!\n");
 		MessageBoxA(nullptr, "Failed to find AthenaPlayerPawn!", "Osmium", MB_OK);
-return;
+		return;
 	}
 
 	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(PlayerPawn);
@@ -114,8 +114,7 @@ return;
 	std::vector<UCustomCharacterPart*> CharPartsArray;
 
 	auto HeroCharParts = osFortPlayerControllerAthena->StrongMyHero->CharacterParts;
-	for (auto i = 0; i < HeroCharParts.Num(); i++)
-		CharPartsArray.push_back(HeroCharParts[i]);
+	for (auto i = 0; i < HeroCharParts.Num(); i++) CharPartsArray.push_back(HeroCharParts[i]);
 
 	auto Backpack = osFortPlayerControllerAthena->CustomizationLoadout.Backpack;
 	if (Backpack)
@@ -125,22 +124,20 @@ return;
 			auto BackpackCharPart = Backpack->GetCharacterParts()[0];
 			CharPartsArray.push_back(BackpackCharPart);
 		}
-		catch (...) { }
+		catch (...)
+		{
+		}
 	}
 
 	for (auto i = 0; i < CharPartsArray.size(); i++)
 	{
-		if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHeadData::StaticClass()))
-			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Head, CharPartsArray[i]);
+		if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHeadData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Head, CharPartsArray[i]);
 
-		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBodyPartData::StaticClass()))
-			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Body, CharPartsArray[i]);
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBodyPartData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Body, CharPartsArray[i]);
 
-		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHatData::StaticClass()))
-			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Hat, CharPartsArray[i]);
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHatData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Hat, CharPartsArray[i]);
 
-		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBackpackData::StaticClass()))
-			osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Backpack, CharPartsArray[i]);
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBackpackData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Backpack, CharPartsArray[i]);
 	}
 
 	AthenaPlayerState->OnRep_CharacterParts();
@@ -175,26 +172,22 @@ auto World::Tick() -> void
 {
 	if (osWorldStatus == EWorldStatus::InGame)
 	{
-		if (!osFortPlayerController)
-			osFortPlayerController = static_cast<AFortPlayerController*>(osPlayerController);
+		if (!osFortPlayerController) osFortPlayerController = static_cast<AFortPlayerController*>(osPlayerController);
 
-		if (!osAthenaPlayerPawn)
-			osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(osFortPlayerController->Pawn);
+		if (!osAthenaPlayerPawn) osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(osFortPlayerController->Pawn);
 
-		if (!osFortPlayerControllerAthena)
-			osFortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(osPlayerController);
+		if (!osFortPlayerControllerAthena) osFortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(osPlayerController);
 
 		osFortAnimInstance = static_cast<UFortAnimInstance*>(osAthenaPlayerPawn->Mesh->GetAnimInstance());
 		if (osFortPlayerControllerAthena && osAthenaPlayerPawn && osFortAnimInstance && !osFortPlayerControllerAthena->IsInAircraft() && !osAthenaPlayerPawn->IsSkydiving() &&
 			(osAthenaPlayerPawn->bIsCrouched || osFortPlayerController->bIsPlayerActivelyMoving || osFortAnimInstance->bIsJumping || osFortAnimInstance->bIsFalling))
 		{
 			auto CurrentMontage = osFortAnimInstance->GetCurrentActiveMontage();
-			if (CurrentMontage && (CurrentMontage->GetName().starts_with("Emote_") || CurrentMontage->GetName().starts_with("Basketball_CMM")))
-				osAthenaPlayerPawn->ServerRootMotionInterruptNotifyStopMontage(CurrentMontage);
+			if (CurrentMontage && (CurrentMontage->GetName().starts_with("Emote_") || CurrentMontage->GetName().starts_with("Basketball_CMM"))) osAthenaPlayerPawn->
+			ServerRootMotionInterruptNotifyStopMontage(CurrentMontage);
 		}
 
-		if (!osAthenaPlayerPawn->CurrentWeapon && !osFortPlayerControllerAthena->IsInAircraft())
-			EquipPickaxe();
+		if (!osAthenaPlayerPawn->CurrentWeapon && !osFortPlayerControllerAthena->IsInAircraft()) EquipPickaxe();
 
 		bool bWantsToSprint = osFortPlayerController->bWantsToSprint;
 		osAthenaPlayerPawn->CurrentMovementStyle = bWantsToSprint ? EFortMovementStyle::Charging : EFortMovementStyle::Sprinting;
@@ -207,23 +200,19 @@ auto World::Tick() -> void
 				{
 					if (!osAthenaPlayerPawn->IsParachuteForcedOpen())
 					{
-						if (osAthenaPlayerPawn->IsSkydiving() && !osAthenaPlayerPawn->IsParachuteOpen()) 
-							osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 3);
-						else if (osAthenaPlayerPawn->IsParachuteOpen()) 
-							osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 4);
+						if (osAthenaPlayerPawn->IsSkydiving() && !osAthenaPlayerPawn->IsParachuteOpen()) osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 3);
+						else if (osAthenaPlayerPawn->IsParachuteOpen()) osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 4);
 
 						osAthenaPlayerPawn->OnRep_IsParachuteOpen(osAthenaPlayerPawn->IsParachuteOpen());
 					}
 
-					if (!osAthenaPlayerPawn->IsSkydiving() || osAthenaPlayerPawn->IsParachuteOpen())
-						osAthenaPlayerPawn->Jump();
+					if (!osAthenaPlayerPawn->IsSkydiving() || osAthenaPlayerPawn->IsParachuteOpen()) osAthenaPlayerPawn->Jump();
 				}
 
 				bHasJumped = true;
 			}
 		}
-		else 
-			bHasJumped = false;
+		else bHasJumped = false;
 	}
 }
 
@@ -285,5 +274,4 @@ auto World::EquipPickaxe() -> void
 /// </summary>
 World::~World()
 {
-
 }

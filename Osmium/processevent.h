@@ -75,21 +75,21 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 
 		goto out;
 	}
-    
-    if (nFunc == "ServerLoadingScreenDropped" && (osWorldStatus == EWorldStatus::InGame || osWorldStatus == EWorldStatus::Constructing))
-    {
-		auto Actors = osWorld->FindActors(AFortPlayerStartWarmup::StaticClass());
-        int randomIndex = rand() % Actors.Num();
-        if (Actors[randomIndex] != nullptr)
-        {
-            auto Location = Actors[randomIndex]->K2_GetActorLocation();
-            auto Rotation = Actors[randomIndex]->K2_GetActorRotation();
-            Rotation.Roll = 0.f;
 
-            osWorld->osPlayerController->Pawn->K2_SetActorLocationAndRotation(Location, Rotation, false, true, new FHitResult());
+	if (nFunc == "ServerLoadingScreenDropped" && (osWorldStatus == EWorldStatus::InGame || osWorldStatus == EWorldStatus::Constructing))
+	{
+		auto Actors = osWorld->FindActors(AFortPlayerStartWarmup::StaticClass());
+		int randomIndex = rand() % Actors.Num();
+		if (Actors[randomIndex] != nullptr)
+		{
+			auto Location = Actors[randomIndex]->K2_GetActorLocation();
+			auto Rotation = Actors[randomIndex]->K2_GetActorRotation();
+			Rotation.Roll = 0.f;
+
+			osWorld->osPlayerController->Pawn->K2_SetActorLocationAndRotation(Location, Rotation, false, true, new FHitResult());
 			osWorld->osPlayerController->ControlRotation = Rotation;
-        }
-    }
+		}
+	}
 
 	if (nFunc == "CheatScript")
 	{
@@ -107,8 +107,7 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 				{
 					auto object = UObject::GetGlobalObjects().GetByIndex(i);
 
-					if (object == nullptr) 
-						continue;
+					if (object == nullptr) continue;
 
 					log << object->GetFullName() + "\n";
 				}
@@ -123,6 +122,34 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
 				EventPlayer->Play();
 
 				printf("LogOsmium: Started event\n");
+			}
+			else if (ScriptName == "test")
+			{
+				auto weapon = UObject::FindObject<UFortWeaponRangedItemDefinition>("FortWeaponRangedItemDefinition WID_Shotgun_Break_VR_Ore_T06.WID_Shotgun_Break_VR_Ore_T06");
+				auto item = static_cast<UFortWorldItem*>(weapon->CreateTemporaryItemInstanceBP(1, 1));
+
+				osWorld->osPlayerController->CheatManager->Summon(L"B_Pickups_Default_C");
+
+				osWorld->osPlayerController->CheatManager->Summon(L"FortPickupAthena");
+
+				auto PickupAthena = static_cast<AFortPickup*>(osmium::World::FindActors(AFortPickupAthena::StaticClass())[0]);
+
+				auto PickupEffect = static_cast<AFortPickupEffect*>(osmium::World::FindActors(AFortPickupEffect::StaticClass())[0]);
+
+				auto PickupEffectBlueprintWeak = PickupAthena->PickupEffectBlueprint.Get();
+				
+				PickupEffectBlueprintWeak = PickupEffect;
+
+				PickupEffect->OnAttached();
+
+				PickupAthena->PrimaryPickupItemEntry = item->ItemEntry;
+
+				PickupAthena->PrimaryPickupDummyItem = item;
+
+				PickupAthena->OnRep_PrimaryPickupItemEntry();
+
+
+				PickupAthena->TossPickup(osWorld->osAthenaPlayerPawn->K2_GetActorLocation(), osWorld->osAthenaPlayerPawn, 1, true);
 			}
 		}
 		goto out;
