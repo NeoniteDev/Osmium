@@ -85,7 +85,7 @@ auto World::Spawn() -> void
 	{
 		printf("LogOsmium: Failed to find actors of class AFortPlayerPawnAthena!\n");
 		MessageBoxA(nullptr, "Failed to find AthenaPlayerPawn!", "Osmium", MB_OK);
-		return;
+return;
 	}
 
 	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(PlayerPawn);
@@ -96,6 +96,10 @@ auto World::Spawn() -> void
 	printf("LogOsmium: PlayerController now has god-mode\n");
 
 	auto Location = osAthenaPlayerPawn->K2_GetActorLocation();
+	Location.X = -127500;
+	Location.Y = -110500;
+	Location.Z = Location.Z + 4000;
+
 	FRotator Rotation
 	{
 		0, 0, 0
@@ -174,10 +178,10 @@ auto World::Tick() -> void
 		if (!osFortPlayerController)
 			osFortPlayerController = static_cast<AFortPlayerController*>(osPlayerController);
 
-		if (!osAthenaPlayerPawn) 
+		if (!osAthenaPlayerPawn)
 			osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(osFortPlayerController->Pawn);
 
-		if (!osFortPlayerControllerAthena) 
+		if (!osFortPlayerControllerAthena)
 			osFortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(osPlayerController);
 
 		osFortAnimInstance = static_cast<UFortAnimInstance*>(osAthenaPlayerPawn->Mesh->GetAnimInstance());

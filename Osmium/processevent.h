@@ -78,37 +78,6 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
     
     if (nFunc == "ServerLoadingScreenDropped" && (osWorldStatus == EWorldStatus::InGame || osWorldStatus == EWorldStatus::Constructing))
     {
-        //TODO: move this to be auto called after loading screen is dropped.
-        auto Hud = UObject::FindObject<UAthenaHUD_C>("AthenaHUD_C Transient.FortEngine_1.FortGameInstance_1.AthenaHUD_C_1");
-    
-        if (Hud)
-        {
-            auto FortRarityData = UObject::FindObject<UFortRarityData>("FortRarityData FortniteGame.Default__FortRarityData");
-            auto Rarity = FortRarityData->STATIC_BPGetRarityData(osWorld->osPickaxe->Rarity);
-    
-            //Inappropriate way to do but you can't construct an brush, maybe there's some solid brush somewhere (possible grab map white one and set it's colors)
-            auto IIAMOPIS = UObject::FindObject<UItemInspectAlterationModOptInScreen_C>(
-                "ItemInspectAlterationModOptInScreen_C ItemInspectAlterationModOptInScreen.WidgetArchetype");
-            
-            IIAMOPIS->Set_Up_Header_Colors(Rarity);
-    
-            //Colors change but it doesn't match the rarity color some how
-            auto Brush = IIAMOPIS->HeaderGrid->Brush;
-            auto Color = IIAMOPIS->HeaderGrid->ColorAndOpacity;
-
-            Hud->QuickbarPrimary->QuickbarSlots[0]->EmptyImage->SetBrush(Brush);
-            Hud->QuickbarPrimary->QuickbarSlots[0]->EmptyImage->SetColorAndOpacity(Color);
-    
-			FLinearColor WeaponColor
-			{
-				60, 170, 50, 1
-			};
-
-            //Doesn't work sice the slot isn't selected (should be fixable)
-            Hud->QuickbarPrimary->QuickbarSlots[0]->SlotInteraction->SetBrushFromTexture(osWorld->osPickaxe->SmallPreviewImage, true);
-            Hud->QuickbarPrimary->QuickbarSlots[0]->SlotInteraction->SetColorAndOpacity(WeaponColor);
-        }
-
 		auto Actors = osWorld->FindActors(AFortPlayerStartWarmup::StaticClass());
         int randomIndex = rand() % Actors.Num();
         if (Actors[randomIndex] != nullptr)
@@ -117,7 +86,7 @@ inline void* ProcessEventDetour(UObject* pObj, UObject* pFunc, void* pParams)
             auto Rotation = Actors[randomIndex]->K2_GetActorRotation();
             Rotation.Roll = 0.f;
 
-            osWorld->osPlayerController->Pawn->K2_SetActorLocationAndRotation(Location, Rotation, false, true, new SDK::FHitResult());
+            osWorld->osPlayerController->Pawn->K2_SetActorLocationAndRotation(Location, Rotation, false, true, new FHitResult());
 			osWorld->osPlayerController->ControlRotation = Rotation;
         }
     }
