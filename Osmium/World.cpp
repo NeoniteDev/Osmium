@@ -23,6 +23,7 @@ World::World()
 
 	Spawn();
 
+	auto BusPathMaterial = UObject::FindObject<UMaterial>("Material M_BusPath.M_BusPath");
 	auto Playlist = UObject::FindObject<UFortPlaylistAthena>("FortPlaylistAthena Playlist_Playground.Playlist_Playground");
 	auto AthenaGameState = static_cast<AFortGameStateAthena*>(GEngine->GameViewport->World->GameState);
 	AthenaGameState->CurrentPlaylistData = Playlist;
@@ -31,6 +32,7 @@ World::World()
 
 	auto WidgetLibrary = UObject::FindClass("Class UMG.WidgetBlueprintLibrary")->CreateDefaultObject<UWidgetBlueprintLibrary>();
 
+	AthenaGameState->AircraftPathBrush = WidgetLibrary->STATIC_MakeBrushFromMaterial(BusPathMaterial, 32, 32);
 	AthenaGameState->MiniMapBackgroundDrawingMaterial = nullptr;
 	AthenaGameState->MinimapBackgroundImage = UObject::FindObject<UTexture2D>("Texture2D MiniMapAthena.MiniMapAthena");
 	AthenaGameState->MinimapBackgroundBrush = WidgetLibrary->STATIC_MakeBrushFromTexture(AthenaGameState->MinimapBackgroundImage, 2048, 2048);
