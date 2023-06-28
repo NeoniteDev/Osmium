@@ -1,279 +1,279 @@
-#incwude "wowwd.h"
-#incwude "native.h"
-#incwude "gwobaws.h"
-#incwude "fwamewowk.h"
+﻿#include "World.h"
+#include "native.h"
+#include "globals.h"
+#include "framework.h"
 
 using namespace osmium;
 
-/// <summawy>
-/// constwuct osmium.
- /// </summawy>
-wowwd::wowwd()
+/// <summary>
+/// Construct Osmium.
+/// </summary>
+World::World()
 {
- pwintf("wogosmium: constwucting wowwd\n");
- oswowwdstatus = ewowwdstatus::constwucting;
+	printf("LogOsmium: Constructing world\n");
+	osWorldStatus = EWorldStatus::Constructing;
 
- ospwayewcontwowwew = gengine->gameviewpowt->gameinstance->wocawpwayews[0]->pwayewcontwowwew;
- osfowtpwayewcontwowwew = static_cast<afowtpwayewcontwowwew*>(ospwayewcontwowwew);
- osfowtpwayewcontwowwewathena = static_cast<afowtpwayewcontwowwewathena*>(ospwayewcontwowwew);
+	osPlayerController = GEngine->GameViewport->GameInstance->LocalPlayers[0]->PlayerController;
+	osFortPlayerController = static_cast<AFortPlayerController*>(osPlayerController);
+	osFortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(osPlayerController);
 
- native::initcheatmanagew();
+	Native::InitCheatManager();
 
- ospwayewcontwowwew->cheatmanagew->destwoyaww(afowthwodsmactow::staticcwass());
+	osPlayerController->CheatManager->DestroyAll(AFortHLODSMActor::StaticClass());
 
- spawn();
+	Spawn();
 
- auto buspathmatewiaw = uobject::findobject<umatewiaw>("matewiaw m_buspath.M_buspath");
- auto pwaywist = uobject::findobject<ufowtpwaywistathena>("fowtpwaywistathena pwaywist_pwaygwound.Pwaywist_pwaygwound");
- auto athenagamestate = static_cast<afowtgamestateathena*>(gengine->gameviewpowt->wowwd->gamestate);
- athenagamestate->cuwwentpwaywistdata = pwaywist;
- athenagamestate->onwep_cuwwentpwaywistdata();
- pwintf("wogosmium: cuwwent pwaywist set tuwu pwaywist_pwaygwound\n");
+	auto BusPathMaterial = UObject::FindObject<UMaterial>("Material M_BusPath.M_BusPath");
+	auto Playlist = UObject::FindObject<UFortPlaylistAthena>("FortPlaylistAthena Playlist_Playground.Playlist_Playground");
+	auto AthenaGameState = static_cast<AFortGameStateAthena*>(GEngine->GameViewport->World->GameState);
+	AthenaGameState->CurrentPlaylistData = Playlist;
+	AthenaGameState->OnRep_CurrentPlaylistData();
+	printf("LogOsmium: Current playlist set to Playlist_Playground\n");
 
- auto widgetwibwawy = uobject::findcwass("cwass umg.Widgetbwuepwintwibwawy")->cweatedefauwtobject<uwidgetbwuepwintwibwawy>();
+	auto WidgetLibrary = UObject::FindClass("Class UMG.WidgetBlueprintLibrary")->CreateDefaultObject<UWidgetBlueprintLibrary>();
 
- athenagamestate->aiwcwaftpathbwush = widgetwibwawy->static_makebwushfwommatewiaw(buspathmatewiaw, 32, 32);
- athenagamestate->minimapbackgwounddwawingmatewiaw = nuwwptw;
- athenagamestate->minimapbackgwoundimage = uobject::findobject<utextuwe2d>("textuwe2d minimapathena.Minimapathena");
- athenagamestate->minimapbackgwoundbwush = widgetwibwawy->static_makebwushfwomtextuwe(athenagamestate->minimapbackgwoundimage, 2048, 2048);
+	AthenaGameState->AircraftPathBrush = WidgetLibrary->STATIC_MakeBrushFromMaterial(BusPathMaterial, 32, 32);
+	AthenaGameState->MiniMapBackgroundDrawingMaterial = nullptr;
+	AthenaGameState->MinimapBackgroundImage = UObject::FindObject<UTexture2D>("Texture2D MiniMapAthena.MiniMapAthena");
+	AthenaGameState->MinimapBackgroundBrush = WidgetLibrary->STATIC_MakeBrushFromTexture(AthenaGameState->MinimapBackgroundImage, 2048, 2048);
 
- fswatebwush emptybwush = widgetwibwawy->static_nowesouwcebwush();
+	FSlateBrush EmptyBrush = WidgetLibrary->STATIC_NoResourceBrush();
 
- athenagamestate->minimapciwcwemid = nuwwptw;
- athenagamestate->minimapnextciwcwemid = nuwwptw;
- athenagamestate->fuwwmapciwcwemid = nuwwptw;
- athenagamestate->fuwwmapnextciwcwemid = nuwwptw;
- athenagamestate->minimapciwcwedwawingmatewiaw = nuwwptw;
- athenagamestate->minimapnextciwcwedwawingmatewiaw = nuwwptw;
+	AthenaGameState->MinimapCircleMID = nullptr;
+	AthenaGameState->MinimapNextCircleMID = nullptr;
+	AthenaGameState->FullmapCircleMID = nullptr;
+	AthenaGameState->FullmapNextCircleMID = nullptr;
+	AthenaGameState->MiniMapCircleDrawingMaterial = nullptr;
+	AthenaGameState->MiniMapNextCircleDrawingMaterial = nullptr;
 
- athenagamestate->minimapciwcwebwush = emptybwush;
- athenagamestate->minimapsafezonebwush = emptybwush;
- athenagamestate->minimapnextciwcwebwush = emptybwush;
- athenagamestate->fuwwmapciwcwebwush = emptybwush;
- athenagamestate->fuwwmapnextciwcwebwush = emptybwush;
- athenagamestate->minimapsafezonefinawposbwush = emptybwush;
+	AthenaGameState->MinimapCircleBrush = EmptyBrush;
+	AthenaGameState->MinimapSafeZoneBrush = EmptyBrush;
+	AthenaGameState->MinimapNextCircleBrush = EmptyBrush;
+	AthenaGameState->FullMapCircleBrush = EmptyBrush;
+	AthenaGameState->FullMapNextCircleBrush = EmptyBrush;
+	AthenaGameState->MinimapSafeZoneFinalPosBrush = EmptyBrush;
 
- athenagamestate->totawpwayews = 1;
- athenagamestate->pwayewsweft = 1;
+	AthenaGameState->TotalPlayers = 1;
+	AthenaGameState->PlayersLeft = 1;
 
- pwintf("wogosmium: stawting match\n");
- osfowtpwayewcontwowwew->sewvewweadytostawtmatch();
- auto gamemode = weintewpwet_cast<agamemode*>(gengine->gameviewpowt->wowwd->authowitygamemode);
- gamemode->stawtmatch();
+	printf("LogOsmium: Starting match\n");
+	osFortPlayerController->ServerReadyToStartMatch();
+	auto GameMode = reinterpret_cast<AGameMode*>(GEngine->GameViewport->World->AuthorityGameMode);
+	GameMode->StartMatch();
 
- oswowwdstatus = ewowwdstatus::ingame;
+	osWorldStatus = EWorldStatus::InGame;
 
- ue4_consowe_wog(w"osmium by @xkem0x, @dawkbwadeeu awnd @sizzyweaks.\npwease cwedit us fow ouw hawd wowk ♥\nhuge thanks tuwu @notmakks fow pwoviding an sdk awnd cwash fixes.");
+	UE4_CONSOLE_LOG(L"Osmium by @xkem0x, @DarkbladeEU and @SizzyLeaks.\nPlease credit us for our hard work ♥\nHuge thanks to @NotMakks for providing an SDK and crash fixes.");
 
- wetuwn;
+	return;
 }
 
-auto wowwd::findactows(ucwass* pcwass) -> tawway<aactow*>
+auto World::FindActors(UClass* pClass) -> TArray<AActor*>
 {
- tawway<aactow*> actows;
+	TArray<AActor*> Actors;
 
- auto gamepwaystatics = ugamepwaystatics::staticcwass()->cweatedefauwtobject<ugamepwaystatics>();
- gamepwaystatics->static_getawwactowsofcwass(gengine->gameviewpowt->wowwd, pcwass, &actows);
+	auto GameplayStatics = UGameplayStatics::StaticClass()->CreateDefaultObject<UGameplayStatics>();
+	GameplayStatics->STATIC_GetAllActorsOfClass(GEngine->GameViewport->World, pClass, &Actors);
 
- wetuwn actows;
+	return Actors;
 }
 
-auto wowwd::spawn() -> void
+auto World::Spawn() -> void
 {
- ospwayewcontwowwew->cheatmanagew->summon(w"pwayewpawn_athena_c");
+	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
 
- auto pwayewpawn = findactows(afowtpwayewpawnathena::staticcwass())[0];
- if (!pwayewpawn)
- {
-	 pwintf("wogosmium: faiwed tuwu find actows of cwass afowtpwayewpawnathena!\n");
-	 messageboxa(nuwwptw, "faiwed tuwu find athenapwayewpawn!", "osmium", mb_ok);
-	 wetuwn;
- }
+	auto PlayerPawn = FindActors(AFortPlayerPawnAthena::StaticClass())[0];
+	if (!PlayerPawn)
+	{
+		printf("LogOsmium: Failed to find actors of class AFortPlayerPawnAthena!\n");
+		MessageBoxA(nullptr, "Failed to find AthenaPlayerPawn!", "Osmium", MB_OK);
+		return;
+	}
 
- osathenapwayewpawn = static_cast<afowtpwayewpawnathena*>(pwayewpawn);
- ospwayewcontwowwew->possess(osathenapwayewpawn);
- pwintf("wogosmium: athenapwayewpawn summoned awnd possessed\n");
+	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(PlayerPawn);
+	osPlayerController->Possess(osAthenaPlayerPawn);
+	printf("LogOsmium: AthenaPlayerPawn summoned and possessed\n");
 
- ospwayewcontwowwew->cheatmanagew->god();
- pwintf("wogosmium: pwayewcontwowwew now has god-mode\n");
+	osPlayerController->CheatManager->God();
+	printf("LogOsmium: PlayerController now has god-mode\n");
 
- auto wocation = osathenapwayewpawn->k2_getactowwocation();
- wocation.X = -127500;
- wocation.Y = -110500;
- wocation.Z = wocation.Z + 4000;
+	auto Location = osAthenaPlayerPawn->K2_GetActorLocation();
+	Location.X = -127500;
+	Location.Y = -110500;
+	Location.Z = Location.Z + 4000;
 
- fwotatow wotation
- {
-	 0, 0, 0
- };
+	FRotator Rotation
+	{
+		0, 0, 0
+	};
 
- osathenapwayewpawn->k2_setactowwocationandwotation(wocation, wotation, fawse, twue, new fhitwesuwt());
- pwintf("wogosmium: set athenapwayewpawn's wocation tuwu spawn-iswand\n");
+	osAthenaPlayerPawn->K2_SetActorLocationAndRotation(Location, Rotation, false, true, new FHitResult());
+	printf("LogOsmium: Set AthenaPlayerPawn's location to spawn-island\n");
 
- osfowtpwayewcontwowwewathena = weintewpwet_cast<afowtpwayewcontwowwewathena*>(ospwayewcontwowwew);
- auto athenapwayewstate = weintewpwet_cast<afowtpwayewstateathena*>(osathenapwayewpawn->pwayewstate);
+	osFortPlayerControllerAthena = reinterpret_cast<AFortPlayerControllerAthena*>(osPlayerController);
+	auto AthenaPlayerState = reinterpret_cast<AFortPlayerStateAthena*>(osAthenaPlayerPawn->PlayerState);
 
- std::vectow<ucustomchawactewpawt*> chawpawtsawway;
+	std::vector<UCustomCharacterPart*> CharPartsArray;
 
- auto hewochawpawts = osfowtpwayewcontwowwewathena->stwongmyhewo->chawactewpawts;
- fow (auto i = 0; i < hewochawpawts.Num(); i++) chawpawtsawway.push_back(hewochawpawts[i]);
+	auto HeroCharParts = osFortPlayerControllerAthena->StrongMyHero->CharacterParts;
+	for (auto i = 0; i < HeroCharParts.Num(); i++) CharPartsArray.push_back(HeroCharParts[i]);
 
- auto backpack = osfowtpwayewcontwowwewathena->customizationwoadout.Backpack;
- if (backpack)
- {
-	 twy
-	 {
-		 auto backpackchawpawt = backpack->getchawactewpawts()[0];
-		 chawpawtsawway.push_back(backpackchawpawt);
-	 }
-	 catch (...)
-	 {
-	 }
- }
+	auto Backpack = osFortPlayerControllerAthena->CustomizationLoadout.Backpack;
+	if (Backpack)
+	{
+		try
+		{
+			auto BackpackCharPart = Backpack->GetCharacterParts()[0];
+			CharPartsArray.push_back(BackpackCharPart);
+		}
+		catch (...)
+		{
+		}
+	}
 
- fow (auto i = 0; i < chawpawtsawway.size(); i++)
- {
-	 if (chawpawtsawway[i]->additionawdata->isa(ucustomchawactewheaddata::staticcwass())) osathenapwayewpawn->sewvewchoosepawt(efowtcustompawttype::head, chawpawtsawway[i]);
+	for (auto i = 0; i < CharPartsArray.size(); i++)
+	{
+		if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHeadData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Head, CharPartsArray[i]);
 
-	 ewse if (chawpawtsawway[i]->additionawdata->isa(ucustomchawactewbodypawtdata::staticcwass())) osathenapwayewpawn->sewvewchoosepawt(efowtcustompawttype::body, chawpawtsawway[i]);
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBodyPartData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Body, CharPartsArray[i]);
 
-	 ewse if (chawpawtsawway[i]->additionawdata->isa(ucustomchawactewhatdata::staticcwass())) osathenapwayewpawn->sewvewchoosepawt(efowtcustompawttype::hat, chawpawtsawway[i]);
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterHatData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Hat, CharPartsArray[i]);
 
-	 ewse if (chawpawtsawway[i]->additionawdata->isa(ucustomchawactewbackpackdata::staticcwass())) osathenapwayewpawn->sewvewchoosepawt(efowtcustompawttype::backpack, chawpawtsawway[i]);
- }
+		else if (CharPartsArray[i]->AdditionalData->IsA(UCustomCharacterBackpackData::StaticClass())) osAthenaPlayerPawn->ServerChoosePart(EFortCustomPartType::Backpack, CharPartsArray[i]);
+	}
 
- athenapwayewstate->onwep_chawactewpawts();
- osathenapwayewpawn->onwep_customizationwoadout();
+	AthenaPlayerState->OnRep_CharacterParts();
+	osAthenaPlayerPawn->OnRep_CustomizationLoadout();
 
- pwintf("wogosmium: added chawactew pawts awnd customization woadout\n");
+	printf("LogOsmium: Added character parts and customization loadout\n");
 
- equippickaxe();
+	EquipPickaxe();
 }
 
-auto wowwd::wespawn() -> void
+auto World::Respawn() -> void
 {
- if (osathenapwayewpawn) osathenapwayewpawn->k2_destwoyactow();
+	if (osAthenaPlayerPawn) osAthenaPlayerPawn->K2_DestroyActor();
 
- ospwayewcontwowwew->cheatmanagew->summon(w"pwayewpawn_athena_c");
+	osPlayerController->CheatManager->Summon(L"PlayerPawn_Athena_C");
 
- auto pwayewpawn = findactows(afowtpwayewpawnathena::staticcwass())[0];
- if (!pwayewpawn)
- {
-	 pwintf("wogosmium: faiwed tuwu find actows of cwass afowtpwayewpawnathena!\n");
-	 messageboxa(nuwwptw, "faiwed tuwu find athenapwayewpawn!", "osmium", mb_ok);
-	 wetuwn;
- }
+	auto PlayerPawn = FindActors(AFortPlayerPawnAthena::StaticClass())[0];
+	if (!PlayerPawn)
+	{
+		printf("LogOsmium: Failed to find actors of class AFortPlayerPawnAthena!\n");
+		MessageBoxA(nullptr, "Failed to find AthenaPlayerPawn!", "Osmium", MB_OK);
+		return;
+	}
 
- osathenapwayewpawn = static_cast<afowtpwayewpawnathena*>(pwayewpawn);
- ospwayewcontwowwew->possess(osathenapwayewpawn);
+	osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(PlayerPawn);
+	osPlayerController->Possess(osAthenaPlayerPawn);
 
- pwintf("wogosmium: wespawned pwayew\n");
+	printf("LogOsmium: Respawned player\n");
 }
 
-auto wowwd::tick() -> void
+auto World::Tick() -> void
 {
- if (oswowwdstatus == ewowwdstatus::ingame)
- {
-	 if (!osfowtpwayewcontwowwew) osfowtpwayewcontwowwew = static_cast<afowtpwayewcontwowwew*>(ospwayewcontwowwew);
+	if (osWorldStatus == EWorldStatus::InGame)
+	{
+		if (!osFortPlayerController) osFortPlayerController = static_cast<AFortPlayerController*>(osPlayerController);
 
-	 if (!osathenapwayewpawn) osathenapwayewpawn = static_cast<afowtpwayewpawnathena*>(osfowtpwayewcontwowwew->pawn);
+		if (!osAthenaPlayerPawn) osAthenaPlayerPawn = static_cast<AFortPlayerPawnAthena*>(osFortPlayerController->Pawn);
 
-	 if (!osfowtpwayewcontwowwewathena) osfowtpwayewcontwowwewathena = static_cast<afowtpwayewcontwowwewathena*>(ospwayewcontwowwew);
+		if (!osFortPlayerControllerAthena) osFortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(osPlayerController);
 
-	 osfowtaniminstance = static_cast<ufowtaniminstance*>(osathenapwayewpawn->mesh->getaniminstance());
-	 if (osfowtpwayewcontwowwewathena && osathenapwayewpawn && osfowtaniminstance && !osfowtpwayewcontwowwewathena->isinaiwcwaft() && !osathenapwayewpawn->isskydiving() &&
-		 (osathenapwayewpawn->biscwouched || osfowtpwayewcontwowwew->bispwayewactivewymoving || osfowtaniminstance->bisjumping || osfowtaniminstance->bisfawwing))
-	 {
-		 auto cuwwentmontage = osfowtaniminstance->getcuwwentactivemontage();
-		 if (cuwwentmontage && (cuwwentmontage->getname().stawts_with("emote_") || cuwwentmontage->getname().stawts_with("basketbaww_cmm"))) osathenapwayewpawn->
-		 sewvewwootmotionintewwuptnotifystopmontage(cuwwentmontage);
-	 }
+		osFortAnimInstance = static_cast<UFortAnimInstance*>(osAthenaPlayerPawn->Mesh->GetAnimInstance());
+		if (osFortPlayerControllerAthena && osAthenaPlayerPawn && osFortAnimInstance && !osFortPlayerControllerAthena->IsInAircraft() && !osAthenaPlayerPawn->IsSkydiving() &&
+			(osAthenaPlayerPawn->bIsCrouched || osFortPlayerController->bIsPlayerActivelyMoving || osFortAnimInstance->bIsJumping || osFortAnimInstance->bIsFalling))
+		{
+			auto CurrentMontage = osFortAnimInstance->GetCurrentActiveMontage();
+			if (CurrentMontage && (CurrentMontage->GetName().starts_with("Emote_") || CurrentMontage->GetName().starts_with("Basketball_CMM"))) osAthenaPlayerPawn->
+			ServerRootMotionInterruptNotifyStopMontage(CurrentMontage);
+		}
 
-	 if (!osathenapwayewpawn->cuwwentweapon && !osfowtpwayewcontwowwewathena->isinaiwcwaft()) equippickaxe();
+		if (!osAthenaPlayerPawn->CurrentWeapon && !osFortPlayerControllerAthena->IsInAircraft()) EquipPickaxe();
 
-	 boow bwantstospwint = osfowtpwayewcontwowwew->bwantstospwint;
-	 osathenapwayewpawn->cuwwentmovementstywe = bwantstospwint ? efowtmovementstywe::chawging : efowtmovementstywe::spwinting;
+		bool bWantsToSprint = osFortPlayerController->bWantsToSprint;
+		osAthenaPlayerPawn->CurrentMovementStyle = bWantsToSprint ? EFortMovementStyle::Charging : EFortMovementStyle::Sprinting;
 
-	 if (getasynckeystate(vk_space))
-	 {
-		 if (bhasjumped == fawse)
-		 {
-			 if (!osfowtpwayewcontwowwewathena->isinaiwcwaft())
-			 {
-				 if (!osathenapwayewpawn->ispawachutefowcedopen())
-				 {
-					 if (osathenapwayewpawn->isskydiving() && !osathenapwayewpawn->ispawachuteopen()) osathenapwayewpawn->chawactewmovement->setmovementmode(emovementmode::move_custom, 3);
-					 ewse if (osathenapwayewpawn->ispawachuteopen()) osathenapwayewpawn->chawactewmovement->setmovementmode(emovementmode::move_custom, 4);
+		if (GetAsyncKeyState(VK_SPACE))
+		{
+			if (bHasJumped == false)
+			{
+				if (!osFortPlayerControllerAthena->IsInAircraft())
+				{
+					if (!osAthenaPlayerPawn->IsParachuteForcedOpen())
+					{
+						if (osAthenaPlayerPawn->IsSkydiving() && !osAthenaPlayerPawn->IsParachuteOpen()) osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 3);
+						else if (osAthenaPlayerPawn->IsParachuteOpen()) osAthenaPlayerPawn->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Custom, 4);
 
-					 osathenapwayewpawn->onwep_ispawachuteopen(osathenapwayewpawn->ispawachuteopen());
-				 }
+						osAthenaPlayerPawn->OnRep_IsParachuteOpen(osAthenaPlayerPawn->IsParachuteOpen());
+					}
 
-				 if (!osathenapwayewpawn->isskydiving() || osathenapwayewpawn->ispawachuteopen()) osathenapwayewpawn->jump();
-			 }
+					if (!osAthenaPlayerPawn->IsSkydiving() || osAthenaPlayerPawn->IsParachuteOpen()) osAthenaPlayerPawn->Jump();
+				}
 
-			 bhasjumped = twue;
-		 }
-	 }
-	 ewse bhasjumped = fawse;
- }
+				bHasJumped = true;
+			}
+		}
+		else bHasJumped = false;
+	}
 }
 
-auto wowwd::equippickaxe() -> void
+auto World::EquipPickaxe() -> void
 {
- auto pickaxeid = osfowtpwayewcontwowwewathena->customizationwoadout.Pickaxe->getname();
+	auto PickaxeID = osFortPlayerControllerAthena->CustomizationLoadout.Pickaxe->GetName();
 
- if (ospickaxe)
- {
-	 fguid guid
-	 {
-		 0, 0, 0, 0
-	 };
+	if (osPickaxe)
+	{
+		FGuid GUID
+		{
+			0, 0, 0, 0
+		};
 
-	 osathenapwayewpawn->equipweapondefinition(ospickaxe, guid);
+		osAthenaPlayerPawn->EquipWeaponDefinition(osPickaxe, GUID);
 
-	 pwintf("wogosmium: equipped pickaxe %s\n", pickaxeid.c_stw());
+		printf("LogOsmium: Equipped pickaxe %s\n", PickaxeID.c_str());
 
-	 wetuwn;
- }
+		return;
+	}
 
- ospickaxe = uobject::findobject<ufowtweaponmeweeitemdefinition>("fowtweaponmeweeitemdefinition wid_hawvest_pickaxe_athena_c_t01.Wid_hawvest_pickaxe_athena_c_t01");
+	osPickaxe = UObject::FindObject<UFortWeaponMeleeItemDefinition>("FortWeaponMeleeItemDefinition WID_Harvest_Pickaxe_Athena_C_T01.WID_Harvest_Pickaxe_Athena_C_T01");
 
- httpwib::cwient cwient("https://fowtnite-api.com");
- cwient.set_fowwow_wocation(twue);
+	httplib::Client client("https://fortnite-api.com");
+	client.set_follow_location(true);
 
- std::stwing woute = "/v2/cosmetics/bw/seawch?id=" + pickaxeid;
+	std::string route = "/v2/cosmetics/br/search?id=" + PickaxeID;
 
- if (auto wesponse = cwient.Get(woute.c_stw()))
- {
-	 if (wesponse->status == 200)
-	 {
-		 auto data = nwohmann::json::pawse(wesponse->body)["data"];
+	if (auto response = client.Get(route.c_str()))
+	{
+		if (response->status == 200)
+		{
+			auto Data = nlohmann::json::parse(response->body)["data"];
 
-		 if (!data.is_nuww())
-		 {
-			 std::stwing weaponid = data["definitionpath"].get<std::stwing>();
-			 weaponid = weaponid.ewase(0, weaponid.find("wid"));
+			if (!Data.is_null())
+			{
+				std::string WeaponID = Data["definitionPath"].get<std::string>();
+				WeaponID = WeaponID.erase(0, WeaponID.find("WID"));
 
-			 auto assetname = "fowtweaponmeweeitemdefinition " + weaponid + "." + weaponid;
+				auto AssetName = "FortWeaponMeleeItemDefinition " + WeaponID + "." + WeaponID;
 
-			 ospickaxe = uobject::findobject<ufowtweaponmeweeitemdefinition>(assetname);
-		 }
-	 }
- }
+				osPickaxe = UObject::FindObject<UFortWeaponMeleeItemDefinition>(AssetName);
+			}
+		}
+	}
 
- fguid guid
- {
-	 0, 0, 0, 0
- };
+	FGuid GUID
+	{
+		0, 0, 0, 0
+	};
 
- auto weapon = osathenapwayewpawn->equipweapondefinition(ospickaxe, guid);
+	auto Weapon = osAthenaPlayerPawn->EquipWeaponDefinition(osPickaxe, GUID);
 
- pwintf("wogosmium: equipped pickaxe %s\n", pickaxeid.c_stw());
+	printf("LogOsmium: Equipped pickaxe %s\n", PickaxeID.c_str());
 }
 
-/// <summawy>
-///  deconstwuct osmium.
- /// </summawy>
-wowwd::~wowwd()
+/// <summary>
+///  Deconstruct Osmium.
+/// </summary>
+World::~World()
 {
 }
